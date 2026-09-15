@@ -46,23 +46,22 @@ jobs:
             exit 1
           fi
 
-      - name: Build iOS Archive (Unsigned)
+      - name: Build iOS App (Unsigned)
         run: |
-          xcodebuild -project "${PROJECT_PATH}" \
+          xcodebuild build \
+            -project "${PROJECT_PATH}" \
             -scheme WhereAreThey \
             -configuration Release \
-            -destination 'generic/platform=iOS' \
-            -archivePath build/WhereAreThey.xcarchive \
-            archive \
+            -sdk iphoneos \
+            -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
-            DEVELOPMENT_TEAM=""
+            CODE_SIGN_IDENTITY=""
 
       - name: Package IPA (Payload Folder)
         run: |
           mkdir -p build/Payload
-          cp -r "build/WhereAreThey.xcarchive/Products/Applications/WhereAreThey.app" build/Payload/
+          cp -r build/Build/Products/Release-iphoneos/WhereAreThey.app build/Payload/
           cd build
           zip -r -q WhereAreThey.ipa Payload
           cd ..
