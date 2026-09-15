@@ -1,0 +1,36 @@
+name: WhereAreThey
+options:
+  bundleIdPrefix: com.ainhum
+  deploymentTarget:
+    iOS: "16.0"
+  xcodeVersion: "15.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_IDENTITY: ""
+    CODE_SIGNING_REQUIRED: "NO"
+    CODE_SIGNING_ALLOWED: "NO"
+    PRODUCT_BUNDLE_IDENTIFIER: com.ainhum.WhereAreThey
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.0"
+    GENERATE_INFOPLIST_FILE: "NO"
+    INFOPLIST_FILE: Info.plist
+
+targets:
+  WhereAreThey:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: .
+        excludes:
+          - "README.md"
+          - "Info.plist"
+          - "project.yml"
+    settings:
+      base:
+        INFOPLIST_FILE: Info.plist
+        PRODUCT_NAME: "WhereAreThey"

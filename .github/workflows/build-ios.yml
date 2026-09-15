@@ -1,0 +1,76 @@
+name: Build iOS IPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build-ipa:
+    name: Build & Package WhereAreThey IPA
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Select Xcode Version
+        run: |
+          if [ -d "/Applications/Xcode_15.4.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_15.4.app
+          else
+            sudo xcode-select -s /Applications/Xcode.app
+          fi
+          xcodebuild -version
+
+      - name: Install XcodeGen
+        run: |
+          brew install xcodegen
+
+      - name: Generate Xcode Project
+        run: |
+          if [ -f "project.yml" ]; then
+            echo "Found root project.yml"
+            xcodegen generate
+            echo "PROJECT_PATH=WhereAreThey.xcodeproj" >> $GITHUB_ENV
+          elif [ -f "WhereAreTheyiOS/project.yml" ]; then
+            echo "Found WhereAreTheyiOS/project.yml"
+            cd WhereAreTheyiOS
+            xcodegen generate
+            cd ..
+            echo "PROJECT_PATH=WhereAreTheyiOS/WhereAreThey.xcodeproj" >> $GITHUB_ENV
+          else
+            echo "Error: project.yml not found!"
+            exit 1
+          fi
+
+      - name: Build iOS Archive (Unsigned)
+        run: |
+          xcodebuild -project "${PROJECT_PATH}" \
+            -scheme WhereAreThey \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/WhereAreThey.xcarchive \
+            archive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM=""
+
+      - name: Package IPA (Payload Folder)
+        run: |
+          mkdir -p build/Payload
+          cp -r "build/WhereAreThey.xcarchive/Products/Applications/WhereAreThey.app" build/Payload/
+          cd build
+          zip -r -q WhereAreThey.ipa Payload
+          cd ..
+          ls -lh build/WhereAreThey.ipa
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WhereAreThey-Release-IPA
+          path: build/WhereAreThey.ipa
+          retention-days: 14
