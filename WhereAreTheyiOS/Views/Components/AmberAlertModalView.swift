@@ -1,8 +1,8 @@
-//
+﻿//
 //  AmberAlertModalView.swift
 //  WhereAreTheyiOS
 //
-//  Created for AinHum Platform (أين هم) — Full AMBER Alert Emergency Dialog matching Android AmberAlertDialog.kt
+//  Created for AinHum Platform (Ø£ÙŠÙ† Ù‡Ù…) â€” Full AMBER Alert Emergency Dialog matching Android AmberAlertDialog.kt
 //
 
 import SwiftUI
@@ -13,11 +13,11 @@ struct AmberAlertModalView: View {
     let onDismiss: () -> Void
     let onViewDetails: (String) -> Void
 
-    @State private var remainingSeconds: Int = 3600 // 60 minutes
+    @State private var remainingSeconds: Int = 3600 // 60 minutes countdown
     @State private var isRedPhase: Bool = true
-    @State private var sirenScale: CGFloat = 0.9
+    @State private var sirenScale: CGFloat = 0.92
     @State private var auraScale: CGFloat = 0.95
-    @State private var timer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
+    @State private var timer = Timer.publish(every: 0.45, on: .main, in: .common).autoconnect()
     @State private var countdownTimer = Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()
 
     var formattedTime: String {
@@ -28,37 +28,41 @@ struct AmberAlertModalView: View {
 
     var body: some View {
         ZStack {
-            // Dark Blur Background
-            Color.black.opacity(0.85).ignoresSafeArea()
+            // Dark Backdrop
+            Color.black.opacity(0.85)
+                .ignoresSafeArea()
                 .onTapGesture {
-                    onDismiss()
+                    handleDismiss()
                 }
 
-            // Radar Pulse Aura Ring
+            // Radar Pulse Aura Ring (Animated Red & Blue)
             RoundedRectangle(cornerRadius: 32)
                 .fill(
                     RadialGradient(
-                        colors: [isRedPhase ? AinTheme.sirenRed.opacity(0.35) : AinTheme.sirenBlue.opacity(0.35), Color.clear],
+                        colors: [
+                            (isRedPhase ? Color(hex: "EF4444") : Color(hex: "3B82F6")).opacity(0.35),
+                            Color.clear
+                        ],
                         center: .center,
                         startRadius: 50,
-                        endRadius: 200
+                        endRadius: 220
                     )
                 )
-                .frame(maxWidth: 360, maxHeight: 440)
+                .frame(maxWidth: 360, maxHeight: 460)
                 .scaleEffect(auraScale)
 
             // Alert Dialog Container
             VStack(spacing: 16) {
-                // 🚨 Police Siren Lightbar Header
+                // ðŸš¨ Police Siren Lightbar Header (Red & Blue Strobe LEDs)
                 HStack {
                     // Left Red Strobe
                     HStack(spacing: 4) {
                         Circle()
-                            .fill(isRedPhase ? AinTheme.sirenRed : Color(hex: "450A0A"))
+                            .fill(isRedPhase ? Color(hex: "EF4444") : Color(hex: "450A0A"))
                             .frame(width: 10, height: 10)
-                            .shadow(color: isRedPhase ? AinTheme.sirenRed : .clear, radius: 6)
+                            .shadow(color: isRedPhase ? Color(hex: "EF4444") : .clear, radius: 6)
                         Circle()
-                            .fill(AinTheme.sirenRed.opacity(0.6))
+                            .fill(Color(hex: "EF4444").opacity(0.6))
                             .frame(width: 6, height: 6)
                     }
 
@@ -66,10 +70,10 @@ struct AmberAlertModalView: View {
 
                     // Center Badge
                     HStack(spacing: 6) {
-                        Text("🚨")
+                        Text("ðŸš¨")
                             .font(.system(size: 18))
                             .scaleEffect(sirenScale)
-                        Text("تنبيه طوارئ AMBER")
+                        Text("ØªÙ†Ø¨ÙŠÙ‡ Ø·ÙˆØ§Ø±Ø¦ AMBER")
                             .font(.system(size: 13, weight: .black))
                             .foregroundColor(.white)
                             .tracking(0.5)
@@ -80,19 +84,19 @@ struct AmberAlertModalView: View {
                     // Right Blue Strobe
                     HStack(spacing: 4) {
                         Circle()
-                            .fill(AinTheme.sirenBlue.opacity(0.6))
+                            .fill(Color(hex: "3B82F6").opacity(0.6))
                             .frame(width: 6, height: 6)
                         Circle()
-                            .fill(!isRedPhase ? AinTheme.sirenBlue : Color(hex: "172554"))
+                            .fill(!isRedPhase ? Color(hex: "3B82F6") : Color(hex: "172554"))
                             .frame(width: 10, height: 10)
-                            .shadow(color: !isRedPhase ? AinTheme.sirenBlue : .clear, radius: 6)
+                            .shadow(color: !isRedPhase ? Color(hex: "3B82F6") : .clear, radius: 6)
                     }
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
                 .background(
                     LinearGradient(
-                        colors: [AinTheme.sirenRed.opacity(0.25), Color(hex: "0F172A"), AinTheme.sirenBlue.opacity(0.25)],
+                        colors: [Color(hex: "EF4444").opacity(0.25), Color(hex: "0F172A"), Color(hex: "3B82F6").opacity(0.25)],
                         startPoint: .leading,
                         endPoint: .trailing
                     )
@@ -100,29 +104,38 @@ struct AmberAlertModalView: View {
                 .cornerRadius(50)
                 .overlay(
                     RoundedRectangle(cornerRadius: 50)
-                        .stroke(isRedPhase ? AinTheme.sirenRed.opacity(0.5) : AinTheme.sirenBlue.opacity(0.5), lineWidth: 1)
+                        .stroke(isRedPhase ? Color(hex: "EF4444").opacity(0.6) : Color(hex: "3B82F6").opacity(0.6), lineWidth: 1)
                 )
 
-                // Countdown Timer Pill
+                // Flashlight & Audio Strobe Indicator Pill
                 HStack(spacing: 6) {
-                    Text("⏱️")
+                    Text("âš¡")
                         .font(.system(size: 12))
-                    Text("توقف السارينة تلقائياً خلال: ")
+                    Text("ÙˆÙ…ÙŠØ¶ ÙÙ„Ø§Ø´ Ø§Ù„Ø·ÙˆØ§Ø±Ø¦ ÙˆØµÙØ§Ø±Ø© Ø§Ù„Ø¥Ù†Ø°Ø§Ø± Ù‚ÙŠØ¯ Ø§Ù„ØªØ´ØºÙŠÙ„")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundColor(Color(hex: "FDE047"))
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 4)
+                .background(Color(hex: "CA8A04").opacity(0.2))
+                .cornerRadius(20)
+                .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color(hex: "EAB308").opacity(0.4), lineWidth: 1))
+
+                // Auto-stop countdown timer
+                HStack(spacing: 6) {
+                    Text("â±ï¸")
+                        .font(.system(size: 11))
+                    Text("ØªÙˆÙ‚Ù Ø§Ù„Ø¥Ù†Ø°Ø§Ø± ØªÙ„Ù‚Ø§Ø¦ÙŠØ§Ù‹ Ø®Ù„Ø§Ù„: ")
                         .font(.system(size: 11))
                         .foregroundColor(Color(hex: "94A3B8"))
-                    Text("\(formattedTime) دقيقة")
-                        .font(.system(size: 12, weight: .black))
+                    Text("\(formattedTime) Ø¯Ù‚ÙŠÙ‚Ø©")
+                        .font(.system(size: 11, weight: .black))
                         .foregroundColor(Color(hex: "F59E0B"))
                 }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 5)
-                .background(Color(hex: "F59E0B").opacity(0.12))
-                .cornerRadius(20)
-                .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color(hex: "F59E0B").opacity(0.4), lineWidth: 1))
 
                 // Headline
-                Text("عاجل من غرفة العمليات المركزية")
-                    .font(.system(size: 17, weight: .black))
+                Text("Ø¹Ø§Ø¬Ù„ Ù…Ù† ØºØ±ÙØ© Ø§Ù„Ø¹Ù…Ù„ÙŠØ§Øª Ø§Ù„Ù…Ø±ÙƒØ²ÙŠØ©")
+                    .font(.system(size: 16, weight: .black))
                     .foregroundColor(.white)
                     .multilineTextAlignment(.center)
 
@@ -141,12 +154,12 @@ struct AmberAlertModalView: View {
                             }
                         }
                         
-                        Text("🔴 صورة حالة الاختفاء")
+                        Text("ðŸ”´ ØµÙˆØ±Ø© Ø­Ø§Ù„Ø© Ø§Ù„Ø§Ø®ØªÙØ§Ø¡")
                             .font(.system(size: 10, weight: .bold))
                             .foregroundColor(Color(hex: "FCA5A5"))
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
-                            .background(Color.black.opacity(0.8))
+                            .background(Color.black.opacity(0.85))
                             .cornerRadius(10)
                             .padding(8)
                     }
@@ -167,25 +180,27 @@ struct AmberAlertModalView: View {
                 // Action Buttons
                 HStack(spacing: 10) {
                     Button(action: {
+                        handleDismiss()
                         onViewDetails(alert.uniqueCode)
-                        onDismiss()
                     }) {
                         HStack(spacing: 6) {
-                            Text("📡")
-                            Text("عرض ملف البلاغ")
+                            Text("ðŸ“¡")
+                            Text("Ø¹Ø±Ø¶ Ù…Ù„Ù Ø§Ù„Ø¨Ù„Ø§Øº")
                                 .font(.system(size: 13, weight: .black))
                         }
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                         .background(
-                            LinearGradient(colors: [AinTheme.blue, Color(hex: "1D4ED8")], startPoint: .topLeading, endPoint: .bottomTrailing)
+                            LinearGradient(colors: [Color(hex: "0284C7"), Color(hex: "1D4ED8")], startPoint: .topLeading, endPoint: .bottomTrailing)
                         )
                         .cornerRadius(14)
                     }
 
-                    Button(action: onDismiss) {
-                        Text("✕ إغلاق التنبيه")
+                    Button(action: {
+                        handleDismiss()
+                    }) {
+                        Text("âœ• Ø¥ÙŠÙ‚Ø§Ù Ø§Ù„Ø³Ø§Ø±ÙŠÙ†Ø©")
                             .font(.system(size: 13, weight: .bold))
                             .foregroundColor(Color(hex: "CBD5E1"))
                             .frame(maxWidth: .infinity)
@@ -204,8 +219,8 @@ struct AmberAlertModalView: View {
                     .stroke(
                         LinearGradient(
                             colors: [
-                                isRedPhase ? AinTheme.sirenRed : AinTheme.sirenBlue,
-                                (isRedPhase ? AinTheme.sirenRed : AinTheme.sirenBlue).opacity(0.35),
+                                isRedPhase ? Color(hex: "EF4444") : Color(hex: "3B82F6"),
+                                (isRedPhase ? Color(hex: "EF4444") : Color(hex: "3B82F6")).opacity(0.35),
                                 Color(hex: "F59E0B")
                             ],
                             startPoint: .topLeading,
@@ -214,29 +229,34 @@ struct AmberAlertModalView: View {
                         lineWidth: 2
                     )
             )
-            .shadow(color: isRedPhase ? AinTheme.sirenRed.opacity(0.5) : AinTheme.sirenBlue.opacity(0.5), radius: 24)
+            .shadow(color: isRedPhase ? Color(hex: "EF4444").opacity(0.5) : Color(hex: "3B82F6").opacity(0.5), radius: 24)
             .padding(.horizontal, 20)
         }
         .onReceive(timer) { _ in
             withAnimation(.easeInOut(duration: 0.45)) {
                 isRedPhase.toggle()
-                sirenScale = (sirenScale == 0.9) ? 1.2 : 0.9
+                sirenScale = (sirenScale == 0.92) ? 1.2 : 0.92
                 auraScale = (auraScale == 0.95) ? 1.06 : 0.95
             }
-            // Trigger emergency haptic vibration pulse
-            let generator = UINotificationFeedbackGenerator()
-            generator.notificationOccurred(.warning)
         }
         .onReceive(countdownTimer) { _ in
             if remainingSeconds > 0 {
                 remainingSeconds -= 1
             } else {
-                onDismiss()
+                handleDismiss()
             }
         }
         .onAppear {
-            // Play system emergency alert chime sound
-            AudioServicesPlaySystemSound(1005)
+            // Start emergency siren audio + camera flashlight strobe + vibration
+            EmergencyAlertController.shared.startEmergencyAlerts()
         }
+        .onDisappear {
+            EmergencyAlertController.shared.stopAllAlerts()
+        }
+    }
+
+    private func handleDismiss() {
+        EmergencyAlertController.shared.stopAllAlerts()
+        onDismiss()
     }
 }
