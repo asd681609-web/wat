@@ -2,7 +2,7 @@
 //  Notice.swift
 //  WhereAreTheyiOS
 //
-//  Created for AinHum Platform (أين هم) — Complete Data Models matching Android & PHP Backend
+//  Created for AinHum Platform (Ø£ÙŠÙ† Ù‡Ù…) â€” Complete Data Models matching Android & PHP Backend
 //
 
 import Foundation
@@ -138,6 +138,96 @@ struct Notice: Codable, Identifiable, Hashable {
         case autoPrivacyBlurred = "auto_privacy_blurred"
     }
 
+    init(
+        id: Int,
+        uniqueCode: String,
+        type: String = "missing",
+        fullName: String? = nil,
+        gender: String? = nil,
+        ageEstimate: Int? = nil,
+        city: String? = nil,
+        district: String? = nil,
+        description: String? = nil,
+        contactPhone: String? = nil,
+        physicalDescription: String? = nil,
+        incidentDate: String? = nil,
+        photoUrl: String? = nil,
+        lat: Double? = nil,
+        lng: Double? = nil,
+        status: String? = "active",
+        priorityLevel: String? = "normal",
+        createdAt: String? = nil,
+        daysSince: Int? = nil,
+        distanceKm: Double? = nil,
+        specialNeeds: String? = nil,
+        urgentMedicationRequired: Int? = nil,
+        medicationName: String? = nil,
+        bloodType: String? = nil,
+        specialInstructions: String? = nil,
+        nickname: String? = nil,
+        nationalId: String? = nil,
+        passportNo: String? = nil,
+        nationality: String? = nil,
+        missingPhone: String? = nil,
+        heightCm: String? = nil,
+        weightKg: String? = nil,
+        eyeColor: String? = nil,
+        hairColor: String? = nil,
+        skinColor: String? = nil,
+        bodyBuild: String? = nil,
+        facialHair: String? = nil,
+        languageDialect: String? = nil,
+        clothesDescription: String? = nil,
+        personalBelongings: String? = nil,
+        vehicleDetails: String? = nil,
+        isPrivatePhoto: Int? = nil,
+        autoPrivacyBlurred: Int? = nil
+    ) {
+        self.id = id
+        self.uniqueCode = uniqueCode
+        self.type = type
+        self.fullName = fullName
+        self.gender = gender
+        self.ageEstimate = ageEstimate
+        self.city = city
+        self.district = district
+        self.description = description
+        self.contactPhone = contactPhone
+        self.physicalDescription = physicalDescription
+        self.incidentDate = incidentDate
+        self.photoUrl = photoUrl
+        self.lat = lat
+        self.lng = lng
+        self.status = status
+        self.priorityLevel = priorityLevel
+        self.createdAt = createdAt
+        self.daysSince = daysSince
+        self.distanceKm = distanceKm
+        self.specialNeeds = specialNeeds
+        self.urgentMedicationRequired = urgentMedicationRequired
+        self.medicationName = medicationName
+        self.bloodType = bloodType
+        self.specialInstructions = specialInstructions
+        self.nickname = nickname
+        self.nationalId = nationalId
+        self.passportNo = passportNo
+        self.nationality = nationality
+        self.missingPhone = missingPhone
+        self.heightCm = heightCm
+        self.weightKg = weightKg
+        self.eyeColor = eyeColor
+        self.hairColor = hairColor
+        self.skinColor = skinColor
+        self.bodyBuild = bodyBuild
+        self.facialHair = facialHair
+        self.languageDialect = languageDialect
+        self.clothesDescription = clothesDescription
+        self.personalBelongings = personalBelongings
+        self.vehicleDetails = vehicleDetails
+        self.isPrivatePhoto = isPrivatePhoto
+        self.autoPrivacyBlurred = autoPrivacyBlurred
+    }
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = container.decodeFlexibleInt(forKey: .id) ?? 0
@@ -195,12 +285,12 @@ struct Notice: Codable, Identifiable, Hashable {
     
     var displayName: String {
         if isResolved || autoPrivacyBlurred == 1 {
-            return "بلاغ مغلق: #\(uniqueCode)"
+            return "Ø¨Ù„Ø§Øº Ù…ØºÙ„Ù‚: #\(uniqueCode)"
         }
         if let name = fullName, !name.trimmingCharacters(in: .whitespaces).isEmpty {
             return name
         }
-        return isMissing ? "شخص مجهول الهوية" : "معثور عليه"
+        return isMissing ? "Ø´Ø®Øµ Ù…Ø¬Ù‡ÙˆÙ„ Ø§Ù„Ù‡ÙˆÙŠØ©" : "Ù…Ø¹Ø«ÙˆØ± Ø¹Ù„ÙŠÙ‡"
     }
 
     var coordinate: CLLocationCoordinate2D? {
@@ -269,6 +359,24 @@ struct Tip: Codable, Identifiable {
         case createdAt = "created_at"
     }
 
+    init(
+        id: Int,
+        content: String? = nil,
+        locationDescription: String? = nil,
+        contactPhone: String? = nil,
+        lat: Double? = nil,
+        lng: Double? = nil,
+        createdAt: String? = nil
+    ) {
+        self.id = id
+        self.content = content
+        self.locationDescription = locationDescription
+        self.contactPhone = contactPhone
+        self.lat = lat
+        self.lng = lng
+        self.createdAt = createdAt
+    }
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = container.decodeFlexibleInt(forKey: .id) ?? 0
@@ -299,12 +407,30 @@ struct AdminUpdateItem: Codable, Identifiable {
         case createdAt = "created_at"
     }
 
+    init(
+        id: Int,
+        noticeId: Int? = nil,
+        updateType: String? = nil,
+        title: String = "ØªØ­Ø¯ÙŠØ« Ø¥Ø¯Ø§Ø±ÙŠ",
+        content: String = "",
+        adminName: String? = nil,
+        createdAt: String? = nil
+    ) {
+        self.id = id
+        self.noticeId = noticeId
+        self.updateType = updateType
+        self.title = title
+        self.content = content
+        self.adminName = adminName
+        self.createdAt = createdAt
+    }
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = container.decodeFlexibleInt(forKey: .id) ?? 0
         self.noticeId = container.decodeFlexibleInt(forKey: .noticeId)
         self.updateType = try? container.decodeIfPresent(String.self, forKey: .updateType)
-        self.title = (try? container.decodeIfPresent(String.self, forKey: .title)) ?? "تحديث إداري"
+        self.title = (try? container.decodeIfPresent(String.self, forKey: .title)) ?? "ØªØ­Ø¯ÙŠØ« Ø¥Ø¯Ø§Ø±ÙŠ"
         self.content = (try? container.decodeIfPresent(String.self, forKey: .content)) ?? ""
         self.adminName = try? container.decodeIfPresent(String.self, forKey: .adminName)
         self.createdAt = try? container.decodeIfPresent(String.self, forKey: .createdAt)
@@ -331,12 +457,34 @@ struct SightingItem: Codable, Identifiable {
         case createdAt = "created_at"
     }
 
+    init(
+        id: Int,
+        noticeId: Int? = nil,
+        eventType: String? = nil,
+        title: String = "Ù…Ø´Ø§Ù‡Ø¯Ø© Ù…ÙŠØ¯Ø§Ù†ÙŠØ©",
+        description: String? = nil,
+        latitude: Double = 0.0,
+        longitude: Double = 0.0,
+        eventTime: String? = nil,
+        createdAt: String? = nil
+    ) {
+        self.id = id
+        self.noticeId = noticeId
+        self.eventType = eventType
+        self.title = title
+        self.description = description
+        self.latitude = latitude
+        self.longitude = longitude
+        self.eventTime = eventTime
+        self.createdAt = createdAt
+    }
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = container.decodeFlexibleInt(forKey: .id) ?? 0
         self.noticeId = container.decodeFlexibleInt(forKey: .noticeId)
         self.eventType = try? container.decodeIfPresent(String.self, forKey: .eventType)
-        self.title = (try? container.decodeIfPresent(String.self, forKey: .title)) ?? "مشاهدة ميدانية"
+        self.title = (try? container.decodeIfPresent(String.self, forKey: .title)) ?? "Ù…Ø´Ø§Ù‡Ø¯Ø© Ù…ÙŠØ¯Ø§Ù†ÙŠØ©"
         self.description = try? container.decodeIfPresent(String.self, forKey: .description)
         self.latitude = container.decodeFlexibleDouble(forKey: .latitude) ?? 0.0
         self.longitude = container.decodeFlexibleDouble(forKey: .longitude) ?? 0.0
@@ -387,7 +535,6 @@ struct AmberAlert: Codable, Identifiable, Hashable {
         case ageEstimate = "age_estimate"
         case noticeCity = "notice_city"
         case photoUrl = "photo_url"
-        case photo
         case issuedAt = "issued_at"
     }
 
@@ -423,8 +570,8 @@ struct AmberAlert: Codable, Identifiable, Hashable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = container.decodeFlexibleInt(forKey: .id) ?? 0
         self.noticeId = container.decodeFlexibleInt(forKey: .noticeId)
-        self.message = (try? container.decodeIfPresent(String.self, forKey: .message)) ?? "تنبيه طوارئ عاجل"
-        self.coverageCity = (try? container.decodeIfPresent(String.self, forKey: .coverageCity)) ?? "ليبيا"
+        self.message = (try? container.decodeIfPresent(String.self, forKey: .message)) ?? "ØªÙ†Ø¨ÙŠÙ‡ Ø·ÙˆØ§Ø±Ø¦ Ø¹Ø§Ø¬Ù„"
+        self.coverageCity = (try? container.decodeIfPresent(String.self, forKey: .coverageCity)) ?? "Ù„ÙŠØ¨ÙŠØ§"
         self.radiusKm = container.decodeFlexibleInt(forKey: .radiusKm)
         self.uniqueCode = (try? container.decodeIfPresent(String.self, forKey: .uniqueCode)) ?? "AIN-ALERT"
         self.fullName = try? container.decodeIfPresent(String.self, forKey: .fullName)
@@ -433,9 +580,33 @@ struct AmberAlert: Codable, Identifiable, Hashable {
         self.noticeCity = try? container.decodeIfPresent(String.self, forKey: .noticeCity)
         
         let pUrl = try? container.decodeIfPresent(String.self, forKey: .photoUrl)
-        let pRaw = try? container.decodeIfPresent(String.self, forKey: .photo)
-        self.photoUrl = pUrl ?? pRaw
+        
+        var fallbackPhoto: String? = nil
+        if let rawContainer = try? decoder.container(keyedBy: RawFallbackKeys.self) {
+            fallbackPhoto = try? rawContainer.decodeIfPresent(String.self, forKey: .photo)
+        }
+        self.photoUrl = pUrl ?? fallbackPhoto
         self.issuedAt = try? container.decodeIfPresent(String.self, forKey: .issuedAt)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encodeIfPresent(noticeId, forKey: .noticeId)
+        try container.encode(message, forKey: .message)
+        try container.encode(coverageCity, forKey: .coverageCity)
+        try container.encodeIfPresent(radiusKm, forKey: .radiusKm)
+        try container.encode(uniqueCode, forKey: .uniqueCode)
+        try container.encodeIfPresent(fullName, forKey: .fullName)
+        try container.encodeIfPresent(gender, forKey: .gender)
+        try container.encodeIfPresent(ageEstimate, forKey: .ageEstimate)
+        try container.encodeIfPresent(noticeCity, forKey: .noticeCity)
+        try container.encodeIfPresent(photoUrl, forKey: .photoUrl)
+        try container.encodeIfPresent(issuedAt, forKey: .issuedAt)
+    }
+
+    private enum RawFallbackKeys: String, CodingKey {
+        case photo
     }
 }
 
@@ -456,7 +627,6 @@ struct PlatformStats: Codable {
         case totalMissing = "total_missing"
         case totalFound = "total_found"
         case totalResolved = "total_resolved"
-        case totalVolunteersApproved = "total_volunteers_approved"
         case totalVolunteers = "total_volunteers"
         case totalVisitors = "total_visitors"
         case currentlyActive = "currently_active"
@@ -496,9 +666,12 @@ struct PlatformStats: Codable {
         self.totalFound = container.decodeFlexibleInt(forKey: .totalFound) ?? 0
         self.totalResolved = container.decodeFlexibleInt(forKey: .totalResolved) ?? 0
         
-        let approved = container.decodeFlexibleInt(forKey: .totalVolunteersApproved)
+        var approvedVolunteers: Int? = nil
+        if let rawContainer = try? decoder.container(keyedBy: RawStatsKeys.self) {
+            approvedVolunteers = rawContainer.decodeFlexibleInt(forKey: .totalVolunteersApproved)
+        }
         let standard = container.decodeFlexibleInt(forKey: .totalVolunteers)
-        self.totalVolunteers = approved ?? standard ?? 0
+        self.totalVolunteers = approvedVolunteers ?? standard ?? 0
         
         self.totalVisitors = container.decodeFlexibleInt(forKey: .totalVisitors)
         self.currentlyActive = container.decodeFlexibleInt(forKey: .currentlyActive)
@@ -507,6 +680,24 @@ struct PlatformStats: Codable {
         self.resolutionRate = container.decodeFlexibleDouble(forKey: .resolutionRate) ?? 0.0
         self.avgDaysToResolve = container.decodeFlexibleDouble(forKey: .avgDaysToResolve) ?? 0.0
         self.byCity = try? container.decodeIfPresent([CityCount].self, forKey: .byCity)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(totalMissing, forKey: .totalMissing)
+        try container.encode(totalFound, forKey: .totalFound)
+        try container.encode(totalResolved, forKey: .totalResolved)
+        try container.encode(totalVolunteers, forKey: .totalVolunteers)
+        try container.encodeIfPresent(totalVisitors, forKey: .totalVisitors)
+        try container.encodeIfPresent(currentlyActive, forKey: .currentlyActive)
+        try container.encodeIfPresent(amberRecipients, forKey: .amberRecipients)
+        try container.encode(resolutionRate, forKey: .resolutionRate)
+        try container.encode(avgDaysToResolve, forKey: .avgDaysToResolve)
+        try container.encodeIfPresent(byCity, forKey: .byCity)
+    }
+
+    private enum RawStatsKeys: String, CodingKey {
+        case totalVolunteersApproved = "total_volunteers_approved"
     }
 
     static let placeholder = PlatformStats(
@@ -570,6 +761,26 @@ struct OpsChatMessage: Codable, Identifiable {
         case createdAt = "created_at"
     }
 
+    init(
+        id: Int,
+        userId: Int? = nil,
+        senderType: String = "user",
+        senderName: String? = nil,
+        message: String? = nil,
+        attachmentUrl: String? = nil,
+        attachmentType: String? = nil,
+        createdAt: String? = nil
+    ) {
+        self.id = id
+        self.userId = userId
+        self.senderType = senderType
+        self.senderName = senderName
+        self.message = message
+        self.attachmentUrl = attachmentUrl
+        self.attachmentType = attachmentType
+        self.createdAt = createdAt
+    }
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = container.decodeFlexibleInt(forKey: .id) ?? 0
@@ -601,11 +812,11 @@ struct PartnerEntity: Codable, Identifiable {
     }
 
     static let defaultPartners: [PartnerEntity] = [
-        PartnerEntity(id: 1, name: "الهلال الأحمر الليبي", logoUrl: nil, linkUrl: nil, category: "طوارئ وإغاثة"),
-        PartnerEntity(id: 2, name: "جهاز المباحث الجنائية", logoUrl: nil, linkUrl: nil, category: "أمني"),
-        PartnerEntity(id: 3, name: "غرفة عمليات الطوارئ 1515", logoUrl: nil, linkUrl: nil, category: "خط ساخن"),
-        PartnerEntity(id: 4, name: "وزارة الصحة الليبية", logoUrl: nil, linkUrl: nil, category: "مستشفيات"),
-        PartnerEntity(id: 5, name: "مركز الطب والطوارئ والدعم", logoUrl: nil, linkUrl: nil, category: "إسعاف")
+        PartnerEntity(id: 1, name: "Ø§Ù„Ù‡Ù„Ø§Ù„ Ø§Ù„Ø£Ø­Ù…Ø± Ø§Ù„Ù„ÙŠØ¨ÙŠ", logoUrl: nil, linkUrl: nil, category: "Ø·ÙˆØ§Ø±Ø¦ ÙˆØ¥ØºØ§Ø«Ø©"),
+        PartnerEntity(id: 2, name: "Ø¬Ù‡Ø§Ø² Ø§Ù„Ù…Ø¨Ø§Ø­Ø« Ø§Ù„Ø¬Ù†Ø§Ø¦ÙŠØ©", logoUrl: nil, linkUrl: nil, category: "Ø£Ù…Ù†ÙŠ"),
+        PartnerEntity(id: 3, name: "ØºØ±ÙØ© Ø¹Ù…Ù„ÙŠØ§Øª Ø§Ù„Ø·ÙˆØ§Ø±Ø¦ 1515", logoUrl: nil, linkUrl: nil, category: "Ø®Ø· Ø³Ø§Ø®Ù†"),
+        PartnerEntity(id: 4, name: "ÙˆØ²Ø§Ø±Ø© Ø§Ù„ØµØ­Ø© Ø§Ù„Ù„ÙŠØ¨ÙŠØ©", logoUrl: nil, linkUrl: nil, category: "Ù…Ø³ØªØ´ÙÙŠØ§Øª"),
+        PartnerEntity(id: 5, name: "Ù…Ø±ÙƒØ² Ø§Ù„Ø·Ø¨ ÙˆØ§Ù„Ø·ÙˆØ§Ø±Ø¦ ÙˆØ§Ù„Ø¯Ø¹Ù…", logoUrl: nil, linkUrl: nil, category: "Ø¥Ø³Ø¹Ø§Ù")
     ]
 }
 
@@ -624,6 +835,22 @@ struct VolunteerItem: Codable, Identifiable {
         case fullName = "full_name"
         case city, skills
         case availabilityStatus = "availability_status"
+    }
+
+    init(
+        id: Int,
+        userId: Int? = nil,
+        fullName: String? = nil,
+        city: String? = nil,
+        skills: String? = nil,
+        availabilityStatus: String? = nil
+    ) {
+        self.id = id
+        self.userId = userId
+        self.fullName = fullName
+        self.city = city
+        self.skills = skills
+        self.availabilityStatus = availabilityStatus
     }
 
     init(from decoder: Decoder) throws {
@@ -652,6 +879,24 @@ struct LoginResponse: Codable {
         case userId = "user_id"
         case name, email, phone, role
         case entityType = "entity_type"
+    }
+
+    init(
+        token: String = "",
+        userId: Int = 0,
+        name: String = "",
+        email: String? = nil,
+        phone: String? = nil,
+        role: String = "volunteer",
+        entityType: String? = nil
+    ) {
+        self.token = token
+        self.userId = userId
+        self.name = name
+        self.email = email
+        self.phone = phone
+        self.role = role
+        self.entityType = entityType
     }
 
     init(from decoder: Decoder) throws {
