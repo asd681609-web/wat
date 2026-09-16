@@ -1,8 +1,8 @@
-﻿//
+//
 //  EmergencyFlashlightManager.swift
 //  WhereAreTheyiOS
 //
-//  Created for AinHum Platform (Ø£ÙŠÙ† Ù‡Ù…) â€” Emergency Camera Flashlight Strobe (ÙˆÙ…ÙŠØ¶ Ø§Ù„ÙÙ„Ø§Ø´ Ù„Ù„Ø·ÙˆØ§Ø±Ø¦)
+//  Created for AinHum Platform (أين هم) — Emergency Camera Flashlight Strobe (وميض الفلاش للطوارئ)
 //  Matching Android EmergencyFlashlightManager.kt
 //
 

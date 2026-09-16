@@ -1,8 +1,8 @@
-﻿//
+//
 //  Notice.swift
 //  WhereAreTheyiOS
 //
-//  Created for AinHum Platform (Ø£ÙŠÙ† Ù‡Ù…) â€” Complete Data Models matching Android & PHP Backend
+//  Created for AinHum Platform (أين هم) — Complete Data Models matching Android & PHP Backend
 //
 
 import Foundation
@@ -285,12 +285,12 @@ struct Notice: Codable, Identifiable, Hashable {
     
     var displayName: String {
         if isResolved || autoPrivacyBlurred == 1 {
-            return "Ø¨Ù„Ø§Øº Ù…ØºÙ„Ù‚: #\(uniqueCode)"
+            return "بلاغ مغلق: #\(uniqueCode)"
         }
         if let name = fullName, !name.trimmingCharacters(in: .whitespaces).isEmpty {
             return name
         }
-        return isMissing ? "Ø´Ø®Øµ Ù…Ø¬Ù‡ÙˆÙ„ Ø§Ù„Ù‡ÙˆÙŠØ©" : "Ù…Ø¹Ø«ÙˆØ± Ø¹Ù„ÙŠÙ‡"
+        return isMissing ? "شخص مجهول الهوية" : "معثور عليه"
     }
 
     var coordinate: CLLocationCoordinate2D? {
@@ -411,7 +411,7 @@ struct AdminUpdateItem: Codable, Identifiable {
         id: Int,
         noticeId: Int? = nil,
         updateType: String? = nil,
-        title: String = "ØªØ­Ø¯ÙŠØ« Ø¥Ø¯Ø§Ø±ÙŠ",
+        title: String = "تحديث إداري",
         content: String = "",
         adminName: String? = nil,
         createdAt: String? = nil
@@ -430,7 +430,7 @@ struct AdminUpdateItem: Codable, Identifiable {
         self.id = container.decodeFlexibleInt(forKey: .id) ?? 0
         self.noticeId = container.decodeFlexibleInt(forKey: .noticeId)
         self.updateType = try? container.decodeIfPresent(String.self, forKey: .updateType)
-        self.title = (try? container.decodeIfPresent(String.self, forKey: .title)) ?? "ØªØ­Ø¯ÙŠØ« Ø¥Ø¯Ø§Ø±ÙŠ"
+        self.title = (try? container.decodeIfPresent(String.self, forKey: .title)) ?? "تحديث إداري"
         self.content = (try? container.decodeIfPresent(String.self, forKey: .content)) ?? ""
         self.adminName = try? container.decodeIfPresent(String.self, forKey: .adminName)
         self.createdAt = try? container.decodeIfPresent(String.self, forKey: .createdAt)
@@ -461,7 +461,7 @@ struct SightingItem: Codable, Identifiable {
         id: Int,
         noticeId: Int? = nil,
         eventType: String? = nil,
-        title: String = "Ù…Ø´Ø§Ù‡Ø¯Ø© Ù…ÙŠØ¯Ø§Ù†ÙŠØ©",
+        title: String = "مشاهدة ميدانية",
         description: String? = nil,
         latitude: Double = 0.0,
         longitude: Double = 0.0,
@@ -484,7 +484,7 @@ struct SightingItem: Codable, Identifiable {
         self.id = container.decodeFlexibleInt(forKey: .id) ?? 0
         self.noticeId = container.decodeFlexibleInt(forKey: .noticeId)
         self.eventType = try? container.decodeIfPresent(String.self, forKey: .eventType)
-        self.title = (try? container.decodeIfPresent(String.self, forKey: .title)) ?? "Ù…Ø´Ø§Ù‡Ø¯Ø© Ù…ÙŠØ¯Ø§Ù†ÙŠØ©"
+        self.title = (try? container.decodeIfPresent(String.self, forKey: .title)) ?? "مشاهدة ميدانية"
         self.description = try? container.decodeIfPresent(String.self, forKey: .description)
         self.latitude = container.decodeFlexibleDouble(forKey: .latitude) ?? 0.0
         self.longitude = container.decodeFlexibleDouble(forKey: .longitude) ?? 0.0
@@ -570,8 +570,8 @@ struct AmberAlert: Codable, Identifiable, Hashable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = container.decodeFlexibleInt(forKey: .id) ?? 0
         self.noticeId = container.decodeFlexibleInt(forKey: .noticeId)
-        self.message = (try? container.decodeIfPresent(String.self, forKey: .message)) ?? "ØªÙ†Ø¨ÙŠÙ‡ Ø·ÙˆØ§Ø±Ø¦ Ø¹Ø§Ø¬Ù„"
-        self.coverageCity = (try? container.decodeIfPresent(String.self, forKey: .coverageCity)) ?? "Ù„ÙŠØ¨ÙŠØ§"
+        self.message = (try? container.decodeIfPresent(String.self, forKey: .message)) ?? "تنبيه طوارئ عاجل"
+        self.coverageCity = (try? container.decodeIfPresent(String.self, forKey: .coverageCity)) ?? "ليبيا"
         self.radiusKm = container.decodeFlexibleInt(forKey: .radiusKm)
         self.uniqueCode = (try? container.decodeIfPresent(String.self, forKey: .uniqueCode)) ?? "AIN-ALERT"
         self.fullName = try? container.decodeIfPresent(String.self, forKey: .fullName)
@@ -812,11 +812,11 @@ struct PartnerEntity: Codable, Identifiable {
     }
 
     static let defaultPartners: [PartnerEntity] = [
-        PartnerEntity(id: 1, name: "Ø§Ù„Ù‡Ù„Ø§Ù„ Ø§Ù„Ø£Ø­Ù…Ø± Ø§Ù„Ù„ÙŠØ¨ÙŠ", logoUrl: nil, linkUrl: nil, category: "Ø·ÙˆØ§Ø±Ø¦ ÙˆØ¥ØºØ§Ø«Ø©"),
-        PartnerEntity(id: 2, name: "Ø¬Ù‡Ø§Ø² Ø§Ù„Ù…Ø¨Ø§Ø­Ø« Ø§Ù„Ø¬Ù†Ø§Ø¦ÙŠØ©", logoUrl: nil, linkUrl: nil, category: "Ø£Ù…Ù†ÙŠ"),
-        PartnerEntity(id: 3, name: "ØºØ±ÙØ© Ø¹Ù…Ù„ÙŠØ§Øª Ø§Ù„Ø·ÙˆØ§Ø±Ø¦ 1515", logoUrl: nil, linkUrl: nil, category: "Ø®Ø· Ø³Ø§Ø®Ù†"),
-        PartnerEntity(id: 4, name: "ÙˆØ²Ø§Ø±Ø© Ø§Ù„ØµØ­Ø© Ø§Ù„Ù„ÙŠØ¨ÙŠØ©", logoUrl: nil, linkUrl: nil, category: "Ù…Ø³ØªØ´ÙÙŠØ§Øª"),
-        PartnerEntity(id: 5, name: "Ù…Ø±ÙƒØ² Ø§Ù„Ø·Ø¨ ÙˆØ§Ù„Ø·ÙˆØ§Ø±Ø¦ ÙˆØ§Ù„Ø¯Ø¹Ù…", logoUrl: nil, linkUrl: nil, category: "Ø¥Ø³Ø¹Ø§Ù")
+        PartnerEntity(id: 1, name: "الهلال الأحمر الليبي", logoUrl: nil, linkUrl: nil, category: "طوارئ وإغاثة"),
+        PartnerEntity(id: 2, name: "جهاز المباحث الجنائية", logoUrl: nil, linkUrl: nil, category: "أمني"),
+        PartnerEntity(id: 3, name: "غرفة عمليات الطوارئ 1515", logoUrl: nil, linkUrl: nil, category: "خط ساخن"),
+        PartnerEntity(id: 4, name: "وزارة الصحة الليبية", logoUrl: nil, linkUrl: nil, category: "مستشفيات"),
+        PartnerEntity(id: 5, name: "مركز الطب والطوارئ والدعم", logoUrl: nil, linkUrl: nil, category: "إسعاف")
     ]
 }
 

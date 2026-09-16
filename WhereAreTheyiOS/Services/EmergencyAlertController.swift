@@ -1,8 +1,8 @@
-﻿//
+//
 //  EmergencyAlertController.swift
 //  WhereAreTheyiOS
 //
-//  Created for AinHum Platform (Ø£ÙŠÙ† Ù‡Ù…) â€” Central Emergency Controller (Siren, Flashlight & Vibration)
+//  Created for AinHum Platform (أين هم) — Central Emergency Controller (Siren, Flashlight & Vibration)
 //  Matching Android EmergencyAlertController.kt
 //
 

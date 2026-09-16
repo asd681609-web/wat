@@ -1,8 +1,8 @@
-﻿//
+//
 //  AmberAlertSyncManager.swift
 //  WhereAreTheyiOS
 //
-//  Created for AinHum Platform (Ø£ÙŠÙ† Ù‡Ù…) â€” Live Real-Time AMBER Alert Sync & Polling Engine
+//  Created for AinHum Platform (أين هم) — Live Real-Time AMBER Alert Sync & Polling Engine
 //
 
 import Foundation
@@ -86,7 +86,7 @@ class AmberAlertSyncManager: ObservableObject {
                 }
             }
         } catch {
-            print("âš ï¸ AmberAlertSyncManager sync error: \(error.localizedDescription)")
+            print("⚠️ AmberAlertSyncManager sync error: \(error.localizedDescription)")
         }
     }
 
@@ -122,16 +122,16 @@ class AmberAlertSyncManager: ObservableObject {
         let sample = AmberAlert(
             id: 99999,
             noticeId: nil,
-            message: "ðŸš¨ ØªØ¬Ø±Ø¨Ø© ØµÙØ§Ø±Ø© Ø§Ù„Ø¥Ù†Ø°Ø§Ø± ÙˆÙˆÙ…ÙŠØ¶ Ø§Ù„ÙÙ„Ø§Ø´: ØªÙ†Ø¨ÙŠÙ‡ Ø·ÙˆØ§Ø±Ø¦ AMBER Ù…Ù† ØºØ±ÙØ© Ø§Ù„Ø¹Ù…Ù„ÙŠØ§Øª Ø§Ù„Ù…Ø±ÙƒØ²ÙŠØ© â€” Ø§Ù„Ù†Ø¸Ø§Ù… ÙŠØ¹Ù…Ù„ ÙˆÙ…Ø³ØªØ¹Ø¯ Ù„Ø§Ø³ØªÙ‚Ø¨Ø§Ù„ Ø§Ù„Ø¨Ù„Ø§ØºØ§Øª Ø§Ù„Ø­ÙŠØ©.",
-            coverageCity: "Ø·Ø±Ø§Ø¨Ù„Ø³",
+            message: "🚨 تجربة صفارة الإنذار ووميض الفلاش: تنبيه طوارئ AMBER من غرفة العمليات المركزية — النظام يعمل ومستعد لاستقبال البلاغات الحية.",
+            coverageCity: "طرابلس",
             radiusKm: 15,
             uniqueCode: "AIN-TEST-2026",
-            fullName: "Ø­Ø§Ù„Ø© ØªØ¬Ø±ÙŠØ¨ÙŠØ© Ù„Ø§Ø®ØªØ¨Ø§Ø± Ø§Ù„ØµÙˆØª ÙˆØ§Ù„ÙÙ„Ø§Ø´ ÙˆØ§Ù„Ø´Ø§Ø´Ø©",
+            fullName: "حالة تجريبية لاختبار الصوت والفلاش والشاشة",
             gender: "male",
             ageEstimate: "25",
-            noticeCity: "Ø·Ø±Ø§Ø¨Ù„Ø³",
+            noticeCity: "طرابلس",
             photoUrl: nil,
-            issuedAt: "Ø§Ù„Ø¢Ù†"
+            issuedAt: "الآن"
         )
         self.triggerEmergencyAlert(alert: sample)
     }

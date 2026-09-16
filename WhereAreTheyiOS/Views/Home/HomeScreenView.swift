@@ -1,8 +1,8 @@
-﻿//
+//
 //  HomeScreenView.swift
 //  WhereAreTheyiOS
 //
-//  Created for AinHum Platform (Ø£ÙŠÙ† Ù‡Ù…) â€” Live Sync HomeScreen matching Android
+//  Created for AinHum Platform (أين هم) — Live Sync HomeScreen matching Android
 //
 
 import SwiftUI
@@ -39,7 +39,7 @@ struct HomeScreenView: View {
                             HStack(spacing: 8) {
                                 Image(systemName: "lock.fill")
                                     .foregroundColor(AinTheme.amber)
-                                Text("ØªÙ…Øª Ø¬Ø¯ÙˆÙ„Ø© ØªÙ†Ø¨ÙŠÙ‡ Ø§Ù„Ø·ÙˆØ§Ø±Ø¦ Ø¨Ø¹Ø¯ 5 Ø«ÙˆØ§Ù†Ù â€” Ø§Ù‚ÙÙ„ Ù‡Ø§ØªÙÙƒ Ø§Ù„Ø¢Ù† Ù„ØªØ¬Ø±Ø¨Ø© Ø´Ø§Ø´Ø© Ø§Ù„Ù‚ÙÙ„!")
+                                Text("تمت جدولة تنبيه الطوارئ بعد 5 ثوانٍ — اقفل هاتفك الآن لتجربة شاشة القفل!")
                                     .font(.system(size: 12, weight: .bold))
                                     .foregroundColor(AinTheme.textPrimary)
                             }
@@ -53,16 +53,16 @@ struct HomeScreenView: View {
                         // Search & City Header
                         searchAndFilterSection
                         
-                        // Fast Action Buttons: Ø¥Ø¨Ù„Ø§Øº Ø¹Ù† Ù…ÙÙ‚ÙˆØ¯ / Ù…Ø¹Ø«ÙˆØ± Ø¹Ù„ÙŠÙ‡
+                        // Fast Action Buttons: إبلاغ عن مفقود / معثور عليه
                         quickActionButtons
                         
-                        // Secondary Services: Ø¨ÙˆØ§Ø¨Ø© Ø§Ù„Ø¹Ø§Ø¦Ù„Ø©ØŒ Ø§Ù„Ù…Ø§Ø³Ø­ Ø§Ù„Ø·Ø¨ÙŠØŒ Ø¹Ù† Ø§Ù„Ù…Ù†ØµØ©
+                        // Secondary Services: بوابة العائلة، الماسح الطبي، عن المنصة
                         quickServicesRow
                         
                         // Partner Agencies Marquee
                         PartnerMarqueeView()
                         
-                        // Filter Category Chips (Ø§Ù„ÙƒÙ„ØŒ Ù…ÙÙ‚ÙˆØ¯ØŒ Ù…Ø¹Ø«ÙˆØ± Ø¹Ù„ÙŠÙ‡ØŒ Ø¥Ù„Ø®)
+                        // Filter Category Chips (الكل، مفقود، معثور عليه، إلخ)
                         filterChipsRow
                         
                         // Notices Feed
@@ -105,7 +105,7 @@ struct HomeScreenView: View {
                         Image(systemName: "person.crop.circle.badge.questionmark.fill")
                             .foregroundColor(AinTheme.cyan)
                             .font(.system(size: 18))
-                        Text("Ù…Ù†ØµØ© Ø£ÙŠÙ† Ù‡Ù…")
+                        Text("منصة أين هم")
                             .font(.system(size: 17, weight: .black))
                             .foregroundColor(AinTheme.textPrimary)
                     }
@@ -135,20 +135,20 @@ struct HomeScreenView: View {
             }
             .actionSheet(isPresented: $showingNoAlertsSheet) {
                 ActionSheet(
-                    title: Text("Ù…Ø±ÙƒØ² ØªÙ†Ø¨ÙŠÙ‡Ø§Øª Ø§Ù„Ø·ÙˆØ§Ø±Ø¦ AMBER"),
-                    message: Text("Ø§Ù„Ù†Ø¸Ø§Ù… Ù…ØªØµÙ„ ÙˆÙŠØ±Ø§Ù‚Ø¨ Ø§Ù„Ø¨Ù„Ø§ØºØ§Øª Ø§Ù„Ø­ÙŠØ© ØªÙ„Ù‚Ø§Ø¦ÙŠØ§Ù‹. ÙŠÙ…ÙƒÙ†Ùƒ ØªØ¬Ø±Ø¨Ø© ØµÙØ§Ø±Ø© Ø§Ù„Ø¥Ù†Ø°Ø§Ø± Ø£Ùˆ Ø§Ø®ØªØ¨Ø§Ø± Ø§Ù„ØªÙ†Ø¨ÙŠÙ‡ Ø¹Ù„Ù‰ Ø´Ø§Ø´Ø© Ø§Ù„Ù‚ÙÙ„ Ø¹Ù†Ø¯ Ø¥ØºÙ„Ø§Ù‚ Ø§Ù„Ù‡Ø§ØªÙ:"),
+                    title: Text("مركز تنبيهات الطوارئ AMBER"),
+                    message: Text("النظام متصل ويراقب البلاغات الحية تلقائياً. يمكنك تجربة صفارة الإنذار أو اختبار التنبيه على شاشة القفل عند إغلاق الهاتف:"),
                     buttons: [
-                        .default(Text("ðŸš¨ ØªØ¬Ø±Ø¨Ø© ØµÙØ§Ø±Ø© Ø§Ù„Ø¥Ù†Ø°Ø§Ø± ÙˆØ§Ù„ÙÙ„Ø§Ø´ (Ø¯Ø§Ø®Ù„ Ø§Ù„ØªØ·Ø¨ÙŠÙ‚)")) {
+                        .default(Text("🚨 تجربة صفارة الإنذار والفلاش (داخل التطبيق)")) {
                             amberSync.testSirenAlert()
                         },
-                        .default(Text("ðŸ“² ØªØ¬Ø±Ø¨Ø© Ø§Ù„ØªÙ†Ø¨ÙŠÙ‡ Ø¹Ù„Ù‰ Ø´Ø§Ø´Ø© Ø§Ù„Ù‚ÙÙ„ (Ø¨Ø¹Ø¯ 5 Ø«ÙˆØ§Ù†Ù)")) {
+                        .default(Text("📲 تجربة التنبيه على شاشة القفل (بعد 5 ثوانٍ)")) {
                             lockscreenTestScheduled = true
                             NotificationManager.shared.scheduleLockscreenTest(delaySeconds: 5.0)
                             DispatchQueue.main.asyncAfter(deadline: .now() + 6.0) {
                                 lockscreenTestScheduled = false
                             }
                         },
-                        .cancel(Text("Ø¥ØºÙ„Ø§Ù‚"))
+                        .cancel(Text("إغلاق"))
                     ]
                 )
             }
@@ -167,7 +167,7 @@ struct HomeScreenView: View {
             HStack {
                 Image(systemName: "magnifyingglass")
                     .foregroundColor(AinTheme.textMuted)
-                TextField("Ø§Ø¨Ø­Ø« Ø¨Ø§Ù„Ø§Ø³Ù…ØŒ Ø§Ù„Ù…Ø¯ÙŠÙ†Ø©ØŒ Ø£Ùˆ Ø§Ù„Ø±Ù…Ø²...", text: $viewModel.searchQuery)
+                TextField("ابحث بالاسم، المدينة، أو الرمز...", text: $viewModel.searchQuery)
                     .font(.system(size: 13))
                     .foregroundColor(AinTheme.textPrimary)
                     .onChange(of: viewModel.searchQuery) { _ in
@@ -216,7 +216,7 @@ struct HomeScreenView: View {
         .padding(.horizontal, 16)
     }
 
-    // MARK: - Quick Action Buttons (Ø¥Ø¨Ù„Ø§Øº Ø¹Ù† Ù…ÙÙ‚ÙˆØ¯ / Ù…Ø¹Ø«ÙˆØ± Ø¹Ù„ÙŠÙ‡)
+    // MARK: - Quick Action Buttons (إبلاغ عن مفقود / معثور عليه)
     private var quickActionButtons: some View {
         HStack(spacing: 12) {
             // Report Missing (Red)
@@ -224,7 +224,7 @@ struct HomeScreenView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .font(.system(size: 16))
-                    Text("Ø¥Ø¨Ù„Ø§Øº Ø¹Ù† Ù…ÙÙ‚ÙˆØ¯")
+                    Text("إبلاغ عن مفقود")
                         .font(.system(size: 13, weight: .bold))
                 }
                 .foregroundColor(.white)
@@ -242,7 +242,7 @@ struct HomeScreenView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "person.crop.circle.badge.checkmark")
                         .font(.system(size: 16))
-                    Text("Ø¥Ø¨Ù„Ø§Øº Ø¹Ù† Ù…Ø¹Ø«ÙˆØ± Ø¹Ù„ÙŠÙ‡")
+                    Text("إبلاغ عن معثور عليه")
                         .font(.system(size: 13, weight: .bold))
                 }
                 .foregroundColor(.white)
@@ -258,12 +258,12 @@ struct HomeScreenView: View {
         .padding(.horizontal, 16)
     }
 
-    // MARK: - Quick Services Row (Ø¨ÙˆØ§Ø¨Ø© Ø§Ù„Ø¹Ø§Ø¦Ù„Ø©ØŒ Ø§Ù„Ù…Ø§Ø³Ø­ Ø§Ù„Ø·Ø¨ÙŠØŒ Ø¹Ù† Ø§Ù„Ù…Ù†ØµØ©)
+    // MARK: - Quick Services Row (بوابة العائلة، الماسح الطبي، عن المنصة)
     private var quickServicesRow: some View {
         HStack(spacing: 10) {
-            servicePill(title: "Ø¨ÙˆØ§Ø¨Ø© Ø§Ù„Ø¹Ø§Ø¦Ù„Ø©", icon: "person.2.fill", color: AinTheme.purple, action: onFamilyPortal)
-            servicePill(title: "Ø§Ù„Ù…Ø§Ø³Ø­ Ø§Ù„Ø·Ø¨ÙŠ", icon: "cross.case.fill", color: AinTheme.emerald, action: onMedicalScanner)
-            servicePill(title: "Ø¹Ù† Ø§Ù„Ù…Ù†ØµØ©", icon: "info.circle.fill", color: AinTheme.cyan, action: onWhyAinHum)
+            servicePill(title: "بوابة العائلة", icon: "person.2.fill", color: AinTheme.purple, action: onFamilyPortal)
+            servicePill(title: "الماسح الطبي", icon: "cross.case.fill", color: AinTheme.emerald, action: onMedicalScanner)
+            servicePill(title: "عن المنصة", icon: "info.circle.fill", color: AinTheme.cyan, action: onWhyAinHum)
         }
         .padding(.horizontal, 16)
     }
@@ -290,10 +290,10 @@ struct HomeScreenView: View {
     private var filterChipsRow: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                chipButton(title: "Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø¨Ù„Ø§ØºØ§Øª", type: "all")
-                chipButton(title: "Ù…ÙÙ‚ÙˆØ¯ÙŠÙ† ÙÙ‚Ø· ðŸš¨", type: "missing")
-                chipButton(title: "Ù…Ø¹Ø«ÙˆØ± Ø¹Ù„ÙŠÙ‡Ù… âœ…", type: "found")
-                chipButton(title: "Ù…ØªÙˆÙÙŠÙ† Ù…Ø¬Ù‡ÙˆÙ„ÙŠÙ†", type: "deceased")
+                chipButton(title: "جميع البلاغات", type: "all")
+                chipButton(title: "مفقودين فقط 🚨", type: "missing")
+                chipButton(title: "معثور عليهم ✅", type: "found")
+                chipButton(title: "متوفين مجهولين", type: "deceased")
             }
             .padding(.horizontal, 16)
         }
@@ -326,7 +326,7 @@ struct HomeScreenView: View {
                 VStack(spacing: 12) {
                     ProgressView()
                         .tint(AinTheme.cyan)
-                    Text("Ø¬Ø§Ø±Ù Ø¬Ù„Ø¨ Ø§Ù„Ø¨Ù„Ø§ØºØ§Øª Ø§Ù„Ø­ÙŠØ© Ù…Ù† Ø®Ø§Ø¯Ù… Ø£ÙŠÙ† Ù‡Ù…...")
+                    Text("جارِ جلب البلاغات الحية من خادم أين هم...")
                         .font(.system(size: 13))
                         .foregroundColor(AinTheme.textMuted)
                 }
@@ -336,10 +336,10 @@ struct HomeScreenView: View {
                     Image(systemName: "doc.text.magnifyingglass")
                         .font(.system(size: 40))
                         .foregroundColor(AinTheme.textMuted)
-                    Text("Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨Ù„Ø§ØºØ§Øª ØªØ·Ø§Ø¨Ù‚ Ø§Ù„Ø¨Ø­Ø« Ø­Ø§Ù„ÙŠØ§Ù‹")
+                    Text("لا توجد بلاغات تطابق البحث حالياً")
                         .font(.system(size: 14, weight: .bold))
                         .foregroundColor(AinTheme.textSecondary)
-                    Text("ÙŠØªÙ… ÙØ­Øµ Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø±ÙƒØ²ÙŠØ© Ø¨Ø´ÙƒÙ„ Ù…Ø³ØªÙ…Ø±")
+                    Text("يتم فحص قاعدة البيانات المركزية بشكل مستمر")
                         .font(.system(size: 12))
                         .foregroundColor(AinTheme.textMuted)
                 }

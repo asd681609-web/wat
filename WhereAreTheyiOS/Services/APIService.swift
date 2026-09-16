@@ -1,4 +1,4 @@
-﻿//
+//
 //  APIService.swift
 //  WhereAreTheyiOS
 //

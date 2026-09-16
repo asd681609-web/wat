@@ -1,8 +1,8 @@
-﻿//
+//
 //  EmergencySoundManager.swift
 //  WhereAreTheyiOS
 //
-//  Created for AinHum Platform (Ø£ÙŠÙ† Ù‡Ù…) â€” Emergency Siren Audio & Vibration Manager
+//  Created for AinHum Platform (أين هم) — Emergency Siren Audio & Vibration Manager
 //  Matching Android EmergencySoundManager.kt with amber_alert_siren.wav
 //
 
@@ -39,7 +39,7 @@ class EmergencySoundManager {
                 audioPlayer?.volume = 1.0
                 audioPlayer?.prepareToPlay()
                 audioPlayer?.play()
-                print("ðŸš¨ Playing amber_alert_siren.wav emergency siren")
+                print("🚨 Playing amber_alert_siren.wav emergency siren")
             } catch {
                 print("Failed to play amber_alert_siren.wav: \(error)")
                 playFallbackSystemSound()

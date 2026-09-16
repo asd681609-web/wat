@@ -1,8 +1,8 @@
-﻿//
+//
 //  AmberAlertModalView.swift
 //  WhereAreTheyiOS
 //
-//  Created for AinHum Platform (Ø£ÙŠÙ† Ù‡Ù…) â€” Full AMBER Alert Emergency Dialog matching Android AmberAlertDialog.kt
+//  Created for AinHum Platform (أين هم) — Full AMBER Alert Emergency Dialog matching Android AmberAlertDialog.kt
 //
 
 import SwiftUI
@@ -53,7 +53,7 @@ struct AmberAlertModalView: View {
 
             // Alert Dialog Container
             VStack(spacing: 16) {
-                // ðŸš¨ Police Siren Lightbar Header (Red & Blue Strobe LEDs)
+                // 🚨 Police Siren Lightbar Header (Red & Blue Strobe LEDs)
                 HStack {
                     // Left Red Strobe
                     HStack(spacing: 4) {
@@ -70,10 +70,10 @@ struct AmberAlertModalView: View {
 
                     // Center Badge
                     HStack(spacing: 6) {
-                        Text("ðŸš¨")
+                        Text("🚨")
                             .font(.system(size: 18))
                             .scaleEffect(sirenScale)
-                        Text("ØªÙ†Ø¨ÙŠÙ‡ Ø·ÙˆØ§Ø±Ø¦ AMBER")
+                        Text("تنبيه طوارئ AMBER")
                             .font(.system(size: 13, weight: .black))
                             .foregroundColor(.white)
                             .tracking(0.5)
@@ -109,9 +109,9 @@ struct AmberAlertModalView: View {
 
                 // Flashlight & Audio Strobe Indicator Pill
                 HStack(spacing: 6) {
-                    Text("âš¡")
+                    Text("⚡")
                         .font(.system(size: 12))
-                    Text("ÙˆÙ…ÙŠØ¶ ÙÙ„Ø§Ø´ Ø§Ù„Ø·ÙˆØ§Ø±Ø¦ ÙˆØµÙØ§Ø±Ø© Ø§Ù„Ø¥Ù†Ø°Ø§Ø± Ù‚ÙŠØ¯ Ø§Ù„ØªØ´ØºÙŠÙ„")
+                    Text("وميض فلاش الطوارئ وصفارة الإنذار قيد التشغيل")
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(Color(hex: "FDE047"))
                 }
@@ -123,18 +123,18 @@ struct AmberAlertModalView: View {
 
                 // Auto-stop countdown timer
                 HStack(spacing: 6) {
-                    Text("â±ï¸")
+                    Text("⏱️")
                         .font(.system(size: 11))
-                    Text("ØªÙˆÙ‚Ù Ø§Ù„Ø¥Ù†Ø°Ø§Ø± ØªÙ„Ù‚Ø§Ø¦ÙŠØ§Ù‹ Ø®Ù„Ø§Ù„: ")
+                    Text("توقف الإنذار تلقائياً خلال: ")
                         .font(.system(size: 11))
                         .foregroundColor(Color(hex: "94A3B8"))
-                    Text("\(formattedTime) Ø¯Ù‚ÙŠÙ‚Ø©")
+                    Text("\(formattedTime) دقيقة")
                         .font(.system(size: 11, weight: .black))
                         .foregroundColor(Color(hex: "F59E0B"))
                 }
 
                 // Headline
-                Text("Ø¹Ø§Ø¬Ù„ Ù…Ù† ØºØ±ÙØ© Ø§Ù„Ø¹Ù…Ù„ÙŠØ§Øª Ø§Ù„Ù…Ø±ÙƒØ²ÙŠØ©")
+                Text("عاجل من غرفة العمليات المركزية")
                     .font(.system(size: 16, weight: .black))
                     .foregroundColor(.white)
                     .multilineTextAlignment(.center)
@@ -154,7 +154,7 @@ struct AmberAlertModalView: View {
                             }
                         }
                         
-                        Text("ðŸ”´ ØµÙˆØ±Ø© Ø­Ø§Ù„Ø© Ø§Ù„Ø§Ø®ØªÙØ§Ø¡")
+                        Text("🔴 صورة حالة الاختفاء")
                             .font(.system(size: 10, weight: .bold))
                             .foregroundColor(Color(hex: "FCA5A5"))
                             .padding(.horizontal, 8)
@@ -184,8 +184,8 @@ struct AmberAlertModalView: View {
                         onViewDetails(alert.uniqueCode)
                     }) {
                         HStack(spacing: 6) {
-                            Text("ðŸ“¡")
-                            Text("Ø¹Ø±Ø¶ Ù…Ù„Ù Ø§Ù„Ø¨Ù„Ø§Øº")
+                            Text("📡")
+                            Text("عرض ملف البلاغ")
                                 .font(.system(size: 13, weight: .black))
                         }
                         .foregroundColor(.white)
@@ -200,7 +200,7 @@ struct AmberAlertModalView: View {
                     Button(action: {
                         handleDismiss()
                     }) {
-                        Text("âœ• Ø¥ÙŠÙ‚Ø§Ù Ø§Ù„Ø³Ø§Ø±ÙŠÙ†Ø©")
+                        Text("✕ إيقاف السارينة")
                             .font(.system(size: 13, weight: .bold))
                             .foregroundColor(Color(hex: "CBD5E1"))
                             .frame(maxWidth: .infinity)

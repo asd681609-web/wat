@@ -1,4 +1,4 @@
-﻿//
+//
 //  IntelMapView.swift
 //  WhereAreTheyiOS
 //
