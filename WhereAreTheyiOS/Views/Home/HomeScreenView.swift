@@ -1,8 +1,8 @@
-//
+﻿//
 //  HomeScreenView.swift
 //  WhereAreTheyiOS
 //
-//  Created for AinHum Platform (أين هم) — HomeScreen matching Android HomeScreen.kt
+//  Created for AinHum Platform (أين هم) — Live Sync HomeScreen matching Android
 //
 
 import SwiftUI
@@ -16,7 +16,8 @@ struct HomeScreenView: View {
     let onWhyAinHum: () -> Void
 
     @StateObject private var viewModel = HomeViewModel()
-    @State private var activeModalAlert: AmberAlert? = nil
+    @ObservedObject private var amberSync = AmberAlertSyncManager.shared
+    @State private var showingNoAlertsSheet: Bool = false
     
     var body: some View {
         NavigationView {
@@ -25,10 +26,10 @@ struct HomeScreenView: View {
                 
                 ScrollView {
                     VStack(spacing: 14) {
-                        // AMBER Alert Siren Banner (if any active alerts)
-                        if !viewModel.amberAlerts.isEmpty {
-                            AmberAlertBannerView(alerts: viewModel.amberAlerts) { alert in
-                                withAnimation { activeModalAlert = alert }
+                        // Live AMBER Alert Siren Banner (if any active broadcasts in database)
+                        if !amberSync.activeAlerts.isEmpty {
+                            AmberAlertBannerView(alerts: amberSync.activeAlerts) { alert in
+                                amberSync.showSpecificAlert(alert)
                             }
                         }
                         
@@ -57,16 +58,22 @@ struct HomeScreenView: View {
                 }
                 .refreshable {
                     await viewModel.refresh()
+                    await amberSync.syncAmberAlerts(triggerPopupOnNew: false)
                 }
 
-                // Full-Screen AMBER Alert Emergency Dialog Overlay
-                if let alert = activeModalAlert {
+                // Full-Screen AMBER Alert Emergency Dialog Overlay (Real-time synced with backend)
+                if let alert = amberSync.currentActiveAlert {
                     AmberAlertModalView(
                         alert: alert,
-                        onDismiss: { withAnimation { activeModalAlert = nil } },
+                        onDismiss: {
+                            amberSync.dismissCurrentAlert()
+                        },
                         onViewDetails: { code in
+                            amberSync.dismissCurrentAlert()
                             if let notice = viewModel.notices.first(where: { $0.uniqueCode == code }) {
                                 onNoticeClick(notice.id)
+                            } else if let nId = alert.noticeId {
+                                onNoticeClick(nId)
                             }
                         }
                     )
@@ -88,26 +95,44 @@ struct HomeScreenView: View {
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
-                        let sample = viewModel.amberAlerts.first ?? AmberAlert(
-                            id: 999,
-                            message: "تعميم عاجل من غرفة العمليات المركزية: نرجو من كافة المواطنين في محيط طرابلس الإبلاغ عن أي مشاهدات تخص حالة الاختفاء الحرجة.",
-                            coverageCity: "طرابلس",
-                            uniqueCode: "WAT-7721",
-                            fullName: "حالة طارئة حرجة",
-                            photoUrl: nil,
-                            issuedAt: "الآن"
-                        )
-                        withAnimation { activeModalAlert = sample }
+                        if let firstAlert = amberSync.activeAlerts.first {
+                            amberSync.showSpecificAlert(firstAlert)
+                        } else {
+                            showingNoAlertsSheet = true
+                        }
                     }) {
-                        Image(systemName: "bell.badge.fill")
-                            .foregroundColor(AinTheme.red)
+                        ZStack(alignment: .topTrailing) {
+                            Image(systemName: "bell.badge.fill")
+                                .foregroundColor(!amberSync.activeAlerts.isEmpty ? AinTheme.red : AinTheme.cyan)
+                                .font(.system(size: 18))
+                            
+                            if !amberSync.activeAlerts.isEmpty {
+                                Circle()
+                                    .fill(AinTheme.red)
+                                    .frame(width: 8, height: 8)
+                                    .offset(x: 2, y: -2)
+                            }
+                        }
                     }
                 }
+            }
+            .actionSheet(isPresented: $showingNoAlertsSheet) {
+                ActionSheet(
+                    title: Text("مركز تنبيهات الطوارئ AMBER"),
+                    message: Text("لا توجد بلاغات طوارئ أو تعميمات حرجة نشطة في مدينتك حالياً. النظام متصل ويراقب البلاغات الحية تلقائياً."),
+                    buttons: [
+                        .default(Text("🚨 تجربة صفارة إنذار الطوارئ")) {
+                            amberSync.testSirenAlert()
+                        },
+                        .cancel(Text("إغلاق"))
+                    ]
+                )
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
         .onAppear {
             viewModel.loadData()
+            NotificationManager.shared.requestNotificationPermission()
         }
     }
 
@@ -270,13 +295,18 @@ struct HomeScreenView: View {
         }
     }
 
-    // MARK: - Notices List Section
+    // MARK: - Notices List Section (Real Live Notices from Server)
     private var noticesListSection: some View {
         LazyVStack(spacing: 8) {
             if viewModel.isLoading && viewModel.filteredNotices.isEmpty {
-                ProgressView("جارِ تحميل البلاغات الحية...")
-                    .padding(30)
-                    .tint(AinTheme.cyan)
+                VStack(spacing: 12) {
+                    ProgressView()
+                        .tint(AinTheme.cyan)
+                    Text("جارِ جلب البلاغات الحية من خادم أين هم...")
+                        .font(.system(size: 13))
+                        .foregroundColor(AinTheme.textMuted)
+                }
+                .padding(30)
             } else if viewModel.filteredNotices.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "doc.text.magnifyingglass")
@@ -285,6 +315,9 @@ struct HomeScreenView: View {
                     Text("لا توجد بلاغات تطابق البحث حالياً")
                         .font(.system(size: 14, weight: .bold))
                         .foregroundColor(AinTheme.textSecondary)
+                    Text("يتم فحص قاعدة البيانات المركزية بشكل مستمر")
+                        .font(.system(size: 12))
+                        .foregroundColor(AinTheme.textMuted)
                 }
                 .padding(.vertical, 40)
             } else {

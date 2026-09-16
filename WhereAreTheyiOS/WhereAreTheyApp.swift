@@ -1,4 +1,4 @@
-//
+﻿//
 //  WhereAreTheyApp.swift
 //  WhereAreTheyiOS
 //
@@ -9,11 +9,18 @@ import SwiftUI
 
 @main
 struct WhereAreTheyApp: App {
+    @StateObject private var notificationManager = NotificationManager.shared
+    @StateObject private var amberSync = AmberAlertSyncManager.shared
+
     var body: some Scene {
         WindowGroup {
             SplashScreenView()
                 .preferredColorScheme(.light)
                 .environment(\.layoutDirection, .rightToLeft) // Default Arabic RTL
+                .onAppear {
+                    notificationManager.requestNotificationPermission()
+                    amberSync.startSync()
+                }
         }
     }
 }

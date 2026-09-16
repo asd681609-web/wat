@@ -1,4 +1,4 @@
-//
+﻿//
 //  StatsView.swift
 //  WhereAreTheyiOS
 //
@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct StatsView: View {
-    @State private var stats: PlatformStats = PlatformStats.placeholder
+    @State private var stats: PlatformStats? = nil
     @State private var isLoading: Bool = true
     
     var body: some View {
@@ -16,82 +16,94 @@ struct StatsView: View {
             ZStack {
                 AinTheme.bgPrimary.ignoresSafeArea()
                 
-                ScrollView {
-                    VStack(spacing: 16) {
-                        // 2x2 Grid of KPIs
-                        LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
-                            kpiCard(title: "حالات نشطة", value: "\(stats.totalMissing)", icon: "person.crop.circle.badge.exclamationmark", color: AinTheme.red)
-                            kpiCard(title: "تم العثور عليهم", value: "\(stats.totalFound)", icon: "checkmark.seal.fill", color: AinTheme.emerald)
-                            kpiCard(title: "نسبة الاستجابة", value: "\(String(format: "%.1f", stats.resolutionRate))%", icon: "chart.line.uptrend.xyaxis", color: AinTheme.cyan)
-                            kpiCard(title: "متطوعون معتمدون", value: "\(stats.totalVolunteers)", icon: "person.3.fill", color: AinTheme.purple)
-                        }
-                        .padding(.horizontal, 16)
-                        
-                        // Response Time Summary Card
-                        HStack(spacing: 12) {
-                            ZStack {
-                                Circle().fill(AinTheme.amber.opacity(0.15)).frame(width: 44, height: 44)
-                                Image(systemName: "clock.badge.checkmark.fill")
-                                    .foregroundColor(AinTheme.amber)
-                                    .font(.system(size: 20))
+                if isLoading && stats == nil {
+                    VStack(spacing: 14) {
+                        ProgressView().tint(AinTheme.cyan)
+                        Text("جارِ جلب المؤشرات الحية من قاعدة البيانات...")
+                            .font(.system(size: 13))
+                            .foregroundColor(AinTheme.textMuted)
+                    }
+                } else if let s = stats {
+                    ScrollView {
+                        VStack(spacing: 16) {
+                            // 2x2 Grid of KPIs
+                            LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
+                                kpiCard(title: "حالات نشطة", value: "\(s.totalMissing)", icon: "person.crop.circle.badge.exclamationmark", color: AinTheme.red)
+                                kpiCard(title: "تم العثور عليهم", value: "\(s.totalFound)", icon: "checkmark.seal.fill", color: AinTheme.emerald)
+                                kpiCard(title: "نسبة الحسم", value: "\(String(format: "%.1f", s.resolutionRate))%", icon: "chart.line.uptrend.xyaxis", color: AinTheme.cyan)
+                                kpiCard(title: "متطوعون معتمدون", value: "\(s.totalVolunteers)", icon: "person.3.fill", color: AinTheme.purple)
                             }
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("متوسط وقت حسم البلاغ")
-                                    .font(.system(size: 13, weight: .bold))
-                                    .foregroundColor(AinTheme.textPrimary)
-                                Text("\(String(format: "%.1f", stats.avgDaysToResolve)) يوم فقط منذ تسجيل البلاغ")
-                                    .font(.system(size: 12))
-                                    .foregroundColor(AinTheme.textSecondary)
-                            }
-                            Spacer()
-                        }
-                        .padding(14)
-                        .background(AinTheme.bgSecondary)
-                        .cornerRadius(16)
-                        .overlay(RoundedRectangle(cornerRadius: 16).stroke(AinTheme.border, lineWidth: 1))
-                        .padding(.horizontal, 16)
-                        
-                        // City Breakdown Section
-                        if let cities = stats.byCity, !cities.isEmpty {
-                            VStack(alignment: .leading, spacing: 12) {
-                                Text("توزيع البلاغات حسب المدن الليبية")
-                                    .font(.system(size: 14, weight: .bold))
-                                    .foregroundColor(AinTheme.textPrimary)
-                                
-                                ForEach(cities) { item in
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        HStack {
-                                            Text(item.city ?? "أخرى")
-                                                .font(.system(size: 12, weight: .semibold))
-                                                .foregroundColor(AinTheme.textPrimary)
-                                            Spacer()
-                                            Text("\(item.count) بلاغ")
-                                                .font(.system(size: 12, weight: .bold))
-                                                .foregroundColor(AinTheme.cyan)
-                                        }
-                                        GeometryReader { geo in
-                                            let maxCount = max(cities.map { $0.count }.max() ?? 1, 1)
-                                            let ratio = CGFloat(item.count) / CGFloat(maxCount)
-                                            ZStack(alignment: .leading) {
-                                                Capsule().fill(AinTheme.bgTertiary).frame(height: 8)
-                                                Capsule().fill(AinTheme.cyan).frame(width: geo.size.width * ratio, height: 8)
-                                            }
-                                        }
-                                        .frame(height: 8)
-                                    }
-                                    .padding(.vertical, 2)
+                            .padding(.horizontal, 16)
+                            
+                            // Response Time Summary Card
+                            HStack(spacing: 12) {
+                                ZStack {
+                                    Circle().fill(AinTheme.amber.opacity(0.15)).frame(width: 44, height: 44)
+                                    Image(systemName: "clock.badge.checkmark.fill")
+                                        .foregroundColor(AinTheme.amber)
+                                        .font(.system(size: 20))
                                 }
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("متوسط وقت حسم البلاغ")
+                                        .font(.system(size: 13, weight: .bold))
+                                        .foregroundColor(AinTheme.textPrimary)
+                                    Text("\(String(format: "%.1f", s.avgDaysToResolve)) يوم فقط منذ تسجيل البلاغ")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(AinTheme.textSecondary)
+                                }
+                                Spacer()
                             }
                             .padding(14)
                             .background(AinTheme.bgSecondary)
                             .cornerRadius(16)
                             .overlay(RoundedRectangle(cornerRadius: 16).stroke(AinTheme.border, lineWidth: 1))
                             .padding(.horizontal, 16)
+                            
+                            // City Breakdown Section
+                            if let cities = s.byCity, !cities.isEmpty {
+                                VStack(alignment: .leading, spacing: 12) {
+                                    Text("توزيع البلاغات حسب المدن الليبية")
+                                        .font(.system(size: 14, weight: .bold))
+                                        .foregroundColor(AinTheme.textPrimary)
+                                    
+                                    ForEach(cities) { item in
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            HStack {
+                                                Text(item.city ?? "أخرى")
+                                                    .font(.system(size: 12, weight: .semibold))
+                                                    .foregroundColor(AinTheme.textPrimary)
+                                                Spacer()
+                                                Text("\(item.count) بلاغ")
+                                                    .font(.system(size: 12, weight: .bold))
+                                                    .foregroundColor(AinTheme.cyan)
+                                            }
+                                            GeometryReader { geo in
+                                                let maxCount = max(cities.map { $0.count }.max() ?? 1, 1)
+                                                let ratio = CGFloat(item.count) / CGFloat(maxCount)
+                                                ZStack(alignment: .leading) {
+                                                    Capsule().fill(AinTheme.bgTertiary).frame(height: 8)
+                                                    Capsule().fill(AinTheme.cyan).frame(width: geo.size.width * ratio, height: 8)
+                                                }
+                                            }
+                                            .frame(height: 8)
+                                        }
+                                        .padding(.vertical, 2)
+                                    }
+                                }
+                                .padding(14)
+                                .background(AinTheme.bgSecondary)
+                                .cornerRadius(16)
+                                .overlay(RoundedRectangle(cornerRadius: 16).stroke(AinTheme.border, lineWidth: 1))
+                                .padding(.horizontal, 16)
+                            }
+                            
+                            Spacer().frame(height: 100)
                         }
-                        
-                        Spacer().frame(height: 100)
+                        .padding(.top, 10)
                     }
-                    .padding(.top, 10)
+                    .refreshable {
+                        await loadStatsAsync()
+                    }
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -133,15 +145,19 @@ struct StatsView: View {
 
     private func loadStats() {
         Task {
-            do {
-                let res = try await APIService.shared.fetchStats()
-                await MainActor.run {
-                    self.stats = res
-                    self.isLoading = false
-                }
-            } catch {
-                await MainActor.run { self.isLoading = false }
+            await loadStatsAsync()
+        }
+    }
+
+    private func loadStatsAsync() async {
+        do {
+            let res = try await APIService.shared.fetchStats()
+            await MainActor.run {
+                self.stats = res
+                self.isLoading = false
             }
+        } catch {
+            await MainActor.run { self.isLoading = false }
         }
     }
 }

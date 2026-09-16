@@ -1,12 +1,41 @@
-//
+﻿//
 //  Notice.swift
 //  WhereAreTheyiOS
 //
-//  Created for AinHum Platform (أين هم) — Complete Data Models matching Android
+//  Created for AinHum Platform (أين هم) — Complete Data Models matching Android & PHP Backend
 //
 
 import Foundation
 import CoreLocation
+
+// MARK: - KeyedDecodingContainer Flexible Helpers
+extension KeyedDecodingContainer {
+    func decodeFlexibleDouble(forKey key: Key) -> Double? {
+        if let val = try? decodeIfPresent(Double.self, forKey: key) { return val }
+        if let str = try? decodeIfPresent(String.self, forKey: key),
+           let val = Double(str.trimmingCharacters(in: .whitespacesAndNewlines)) { return val }
+        if let intVal = try? decodeIfPresent(Int.self, forKey: key) { return Double(intVal) }
+        return nil
+    }
+
+    func decodeFlexibleInt(forKey key: Key) -> Int? {
+        if let val = try? decodeIfPresent(Int.self, forKey: key) { return val }
+        if let str = try? decodeIfPresent(String.self, forKey: key) {
+            let clean = str.trimmingCharacters(in: .whitespacesAndNewlines)
+            if let val = Int(clean) { return val }
+            if let dbl = Double(clean) { return Int(dbl) }
+        }
+        if let dblVal = try? decodeIfPresent(Double.self, forKey: key) { return Int(dblVal) }
+        return nil
+    }
+
+    func decodeFlexibleString(forKey key: Key) -> String? {
+        if let str = try? decodeIfPresent(String.self, forKey: key) { return str }
+        if let intVal = try? decodeIfPresent(Int.self, forKey: key) { return String(intVal) }
+        if let dblVal = try? decodeIfPresent(Double.self, forKey: key) { return String(dblVal) }
+        return nil
+    }
+}
 
 // MARK: - Generic API Response
 struct ApiResponse<T: Codable>: Codable {
@@ -109,6 +138,55 @@ struct Notice: Codable, Identifiable, Hashable {
         case autoPrivacyBlurred = "auto_privacy_blurred"
     }
 
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = container.decodeFlexibleInt(forKey: .id) ?? 0
+        self.uniqueCode = (try? container.decodeIfPresent(String.self, forKey: .uniqueCode)) ?? "AIN-MIS"
+        self.type = (try? container.decodeIfPresent(String.self, forKey: .type)) ?? "missing"
+        self.fullName = try? container.decodeIfPresent(String.self, forKey: .fullName)
+        self.gender = try? container.decodeIfPresent(String.self, forKey: .gender)
+        self.ageEstimate = container.decodeFlexibleInt(forKey: .ageEstimate)
+        self.city = try? container.decodeIfPresent(String.self, forKey: .city)
+        self.district = try? container.decodeIfPresent(String.self, forKey: .district)
+        self.description = try? container.decodeIfPresent(String.self, forKey: .description)
+        self.contactPhone = container.decodeFlexibleString(forKey: .contactPhone)
+        self.physicalDescription = try? container.decodeIfPresent(String.self, forKey: .physicalDescription)
+        self.incidentDate = try? container.decodeIfPresent(String.self, forKey: .incidentDate)
+        self.photoUrl = try? container.decodeIfPresent(String.self, forKey: .photoUrl)
+        self.lat = container.decodeFlexibleDouble(forKey: .lat)
+        self.lng = container.decodeFlexibleDouble(forKey: .lng)
+        self.status = try? container.decodeIfPresent(String.self, forKey: .status)
+        self.priorityLevel = try? container.decodeIfPresent(String.self, forKey: .priorityLevel)
+        self.createdAt = try? container.decodeIfPresent(String.self, forKey: .createdAt)
+        self.daysSince = container.decodeFlexibleInt(forKey: .daysSince)
+        self.distanceKm = container.decodeFlexibleDouble(forKey: .distanceKm)
+        
+        self.specialNeeds = try? container.decodeIfPresent(String.self, forKey: .specialNeeds)
+        self.urgentMedicationRequired = container.decodeFlexibleInt(forKey: .urgentMedicationRequired)
+        self.medicationName = try? container.decodeIfPresent(String.self, forKey: .medicationName)
+        self.bloodType = try? container.decodeIfPresent(String.self, forKey: .bloodType)
+        self.specialInstructions = try? container.decodeIfPresent(String.self, forKey: .specialInstructions)
+        
+        self.nickname = try? container.decodeIfPresent(String.self, forKey: .nickname)
+        self.nationalId = container.decodeFlexibleString(forKey: .nationalId)
+        self.passportNo = container.decodeFlexibleString(forKey: .passportNo)
+        self.nationality = try? container.decodeIfPresent(String.self, forKey: .nationality)
+        self.missingPhone = container.decodeFlexibleString(forKey: .missingPhone)
+        self.heightCm = container.decodeFlexibleString(forKey: .heightCm)
+        self.weightKg = container.decodeFlexibleString(forKey: .weightKg)
+        self.eyeColor = try? container.decodeIfPresent(String.self, forKey: .eyeColor)
+        self.hairColor = try? container.decodeIfPresent(String.self, forKey: .hairColor)
+        self.skinColor = try? container.decodeIfPresent(String.self, forKey: .skinColor)
+        self.bodyBuild = try? container.decodeIfPresent(String.self, forKey: .bodyBuild)
+        self.facialHair = try? container.decodeIfPresent(String.self, forKey: .facialHair)
+        self.languageDialect = try? container.decodeIfPresent(String.self, forKey: .languageDialect)
+        self.clothesDescription = try? container.decodeIfPresent(String.self, forKey: .clothesDescription)
+        self.personalBelongings = try? container.decodeIfPresent(String.self, forKey: .personalBelongings)
+        self.vehicleDetails = try? container.decodeIfPresent(String.self, forKey: .vehicleDetails)
+        self.isPrivatePhoto = container.decodeFlexibleInt(forKey: .isPrivatePhoto)
+        self.autoPrivacyBlurred = container.decodeFlexibleInt(forKey: .autoPrivacyBlurred)
+    }
+
     // Helper computed properties
     var isMissing: Bool { type == "missing" }
     var isFound: Bool { type == "found" }
@@ -119,7 +197,10 @@ struct Notice: Codable, Identifiable, Hashable {
         if isResolved || autoPrivacyBlurred == 1 {
             return "بلاغ مغلق: #\(uniqueCode)"
         }
-        return fullName?.isEmpty == false ? fullName! : (isMissing ? "شخص مجهول الهوية" : "معثور عليه")
+        if let name = fullName, !name.trimmingCharacters(in: .whitespaces).isEmpty {
+            return name
+        }
+        return isMissing ? "شخص مجهول الهوية" : "معثور عليه"
     }
 
     var coordinate: CLLocationCoordinate2D? {
@@ -141,6 +222,19 @@ struct NoticesData: Codable {
     let limit: Int?
     let pages: Int?
     let items: [Notice]
+
+    enum CodingKeys: String, CodingKey {
+        case total, page, limit, pages, items
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.total = container.decodeFlexibleInt(forKey: .total)
+        self.page = container.decodeFlexibleInt(forKey: .page)
+        self.limit = container.decodeFlexibleInt(forKey: .limit)
+        self.pages = container.decodeFlexibleInt(forKey: .pages)
+        self.items = (try? container.decode([Notice].self, forKey: .items)) ?? []
+    }
 }
 
 // MARK: - Notice Detail Data
@@ -174,6 +268,17 @@ struct Tip: Codable, Identifiable {
         case lat, lng
         case createdAt = "created_at"
     }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = container.decodeFlexibleInt(forKey: .id) ?? 0
+        self.content = try? container.decodeIfPresent(String.self, forKey: .content)
+        self.locationDescription = try? container.decodeIfPresent(String.self, forKey: .locationDescription)
+        self.contactPhone = container.decodeFlexibleString(forKey: .contactPhone)
+        self.lat = container.decodeFlexibleDouble(forKey: .lat)
+        self.lng = container.decodeFlexibleDouble(forKey: .lng)
+        self.createdAt = try? container.decodeIfPresent(String.self, forKey: .createdAt)
+    }
 }
 
 struct AdminUpdateItem: Codable, Identifiable {
@@ -192,6 +297,17 @@ struct AdminUpdateItem: Codable, Identifiable {
         case title, content
         case adminName = "admin_name"
         case createdAt = "created_at"
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = container.decodeFlexibleInt(forKey: .id) ?? 0
+        self.noticeId = container.decodeFlexibleInt(forKey: .noticeId)
+        self.updateType = try? container.decodeIfPresent(String.self, forKey: .updateType)
+        self.title = (try? container.decodeIfPresent(String.self, forKey: .title)) ?? "تحديث إداري"
+        self.content = (try? container.decodeIfPresent(String.self, forKey: .content)) ?? ""
+        self.adminName = try? container.decodeIfPresent(String.self, forKey: .adminName)
+        self.createdAt = try? container.decodeIfPresent(String.self, forKey: .createdAt)
     }
 }
 
@@ -214,30 +330,112 @@ struct SightingItem: Codable, Identifiable {
         case eventTime = "event_time"
         case createdAt = "created_at"
     }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = container.decodeFlexibleInt(forKey: .id) ?? 0
+        self.noticeId = container.decodeFlexibleInt(forKey: .noticeId)
+        self.eventType = try? container.decodeIfPresent(String.self, forKey: .eventType)
+        self.title = (try? container.decodeIfPresent(String.self, forKey: .title)) ?? "مشاهدة ميدانية"
+        self.description = try? container.decodeIfPresent(String.self, forKey: .description)
+        self.latitude = container.decodeFlexibleDouble(forKey: .latitude) ?? 0.0
+        self.longitude = container.decodeFlexibleDouble(forKey: .longitude) ?? 0.0
+        self.eventTime = try? container.decodeIfPresent(String.self, forKey: .eventTime)
+        self.createdAt = try? container.decodeIfPresent(String.self, forKey: .createdAt)
+    }
 }
 
 // MARK: - AMBER Alert
 struct AmberAlertData: Codable {
     let count: Int?
     let alerts: [AmberAlert]
+
+    enum CodingKeys: String, CodingKey {
+        case count, alerts
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.count = container.decodeFlexibleInt(forKey: .count)
+        self.alerts = (try? container.decode([AmberAlert].self, forKey: .alerts)) ?? []
+    }
 }
 
-struct AmberAlert: Codable, Identifiable {
+struct AmberAlert: Codable, Identifiable, Hashable {
     let id: Int
+    let noticeId: Int?
     let message: String
     let coverageCity: String
+    let radiusKm: Int?
     let uniqueCode: String
     let fullName: String?
+    let gender: String?
+    let ageEstimate: String?
+    let noticeCity: String?
     let photoUrl: String?
     let issuedAt: String?
 
     enum CodingKeys: String, CodingKey {
-        case id, message
+        case id
+        case noticeId = "notice_id"
+        case message
         case coverageCity = "coverage_city"
+        case radiusKm = "radius_km"
         case uniqueCode = "unique_code"
         case fullName = "full_name"
+        case gender
+        case ageEstimate = "age_estimate"
+        case noticeCity = "notice_city"
         case photoUrl = "photo_url"
+        case photo
         case issuedAt = "issued_at"
+    }
+
+    init(
+        id: Int,
+        noticeId: Int? = nil,
+        message: String,
+        coverageCity: String,
+        radiusKm: Int? = 15,
+        uniqueCode: String,
+        fullName: String? = nil,
+        gender: String? = nil,
+        ageEstimate: String? = nil,
+        noticeCity: String? = nil,
+        photoUrl: String? = nil,
+        issuedAt: String? = nil
+    ) {
+        self.id = id
+        self.noticeId = noticeId
+        self.message = message
+        self.coverageCity = coverageCity
+        self.radiusKm = radiusKm
+        self.uniqueCode = uniqueCode
+        self.fullName = fullName
+        self.gender = gender
+        self.ageEstimate = ageEstimate
+        self.noticeCity = noticeCity
+        self.photoUrl = photoUrl
+        self.issuedAt = issuedAt
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = container.decodeFlexibleInt(forKey: .id) ?? 0
+        self.noticeId = container.decodeFlexibleInt(forKey: .noticeId)
+        self.message = (try? container.decodeIfPresent(String.self, forKey: .message)) ?? "تنبيه طوارئ عاجل"
+        self.coverageCity = (try? container.decodeIfPresent(String.self, forKey: .coverageCity)) ?? "ليبيا"
+        self.radiusKm = container.decodeFlexibleInt(forKey: .radiusKm)
+        self.uniqueCode = (try? container.decodeIfPresent(String.self, forKey: .uniqueCode)) ?? "AIN-ALERT"
+        self.fullName = try? container.decodeIfPresent(String.self, forKey: .fullName)
+        self.gender = try? container.decodeIfPresent(String.self, forKey: .gender)
+        self.ageEstimate = container.decodeFlexibleString(forKey: .ageEstimate)
+        self.noticeCity = try? container.decodeIfPresent(String.self, forKey: .noticeCity)
+        
+        let pUrl = try? container.decodeIfPresent(String.self, forKey: .photoUrl)
+        let pRaw = try? container.decodeIfPresent(String.self, forKey: .photo)
+        self.photoUrl = pUrl ?? pRaw
+        self.issuedAt = try? container.decodeIfPresent(String.self, forKey: .issuedAt)
     }
 }
 
@@ -247,6 +445,9 @@ struct PlatformStats: Codable {
     let totalFound: Int
     let totalResolved: Int
     let totalVolunteers: Int
+    let totalVisitors: Int?
+    let currentlyActive: Int?
+    let amberRecipients: Int?
     let resolutionRate: Double
     let avgDaysToResolve: Double
     let byCity: [CityCount]?
@@ -255,25 +456,67 @@ struct PlatformStats: Codable {
         case totalMissing = "total_missing"
         case totalFound = "total_found"
         case totalResolved = "total_resolved"
-        case totalVolunteers = "total_volunteers_approved"
+        case totalVolunteersApproved = "total_volunteers_approved"
+        case totalVolunteers = "total_volunteers"
+        case totalVisitors = "total_visitors"
+        case currentlyActive = "currently_active"
+        case amberRecipients = "amber_recipients"
         case resolutionRate = "resolution_rate"
         case avgDaysToResolve = "avg_days_to_resolve"
         case byCity = "by_city"
     }
 
+    init(
+        totalMissing: Int,
+        totalFound: Int,
+        totalResolved: Int,
+        totalVolunteers: Int,
+        totalVisitors: Int? = 0,
+        currentlyActive: Int? = 0,
+        amberRecipients: Int? = 0,
+        resolutionRate: Double,
+        avgDaysToResolve: Double,
+        byCity: [CityCount]? = nil
+    ) {
+        self.totalMissing = totalMissing
+        self.totalFound = totalFound
+        self.totalResolved = totalResolved
+        self.totalVolunteers = totalVolunteers
+        self.totalVisitors = totalVisitors
+        self.currentlyActive = currentlyActive
+        self.amberRecipients = amberRecipients
+        self.resolutionRate = resolutionRate
+        self.avgDaysToResolve = avgDaysToResolve
+        self.byCity = byCity
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.totalMissing = container.decodeFlexibleInt(forKey: .totalMissing) ?? 0
+        self.totalFound = container.decodeFlexibleInt(forKey: .totalFound) ?? 0
+        self.totalResolved = container.decodeFlexibleInt(forKey: .totalResolved) ?? 0
+        
+        let approved = container.decodeFlexibleInt(forKey: .totalVolunteersApproved)
+        let standard = container.decodeFlexibleInt(forKey: .totalVolunteers)
+        self.totalVolunteers = approved ?? standard ?? 0
+        
+        self.totalVisitors = container.decodeFlexibleInt(forKey: .totalVisitors)
+        self.currentlyActive = container.decodeFlexibleInt(forKey: .currentlyActive)
+        self.amberRecipients = container.decodeFlexibleInt(forKey: .amberRecipients)
+        
+        self.resolutionRate = container.decodeFlexibleDouble(forKey: .resolutionRate) ?? 0.0
+        self.avgDaysToResolve = container.decodeFlexibleDouble(forKey: .avgDaysToResolve) ?? 0.0
+        self.byCity = try? container.decodeIfPresent([CityCount].self, forKey: .byCity)
+    }
+
     static let placeholder = PlatformStats(
-        totalMissing: 48,
-        totalFound: 183,
-        totalResolved: 172,
-        totalVolunteers: 620,
-        resolutionRate: 88.5,
-        avgDaysToResolve: 3.2,
-        byCity: [
-            CityCount(city: "طرابلس", count: 85),
-            CityCount(city: "بنغازي", count: 42),
-            CityCount(city: "مصراتة", count: 28),
-            CityCount(city: "سبها", count: 19)
-        ]
+        totalMissing: 0,
+        totalFound: 0,
+        totalResolved: 0,
+        totalVolunteers: 0,
+        resolutionRate: 0.0,
+        avgDaysToResolve: 0.0,
+        byCity: []
     )
 }
 
@@ -281,6 +524,21 @@ struct CityCount: Codable, Identifiable {
     var id: String { city ?? UUID().uuidString }
     let city: String?
     let count: Int
+
+    enum CodingKeys: String, CodingKey {
+        case city, count
+    }
+
+    init(city: String?, count: Int) {
+        self.city = city
+        self.count = count
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.city = try? container.decodeIfPresent(String.self, forKey: .city)
+        self.count = container.decodeFlexibleInt(forKey: .count) ?? 0
+    }
 }
 
 // MARK: - Family Portal
@@ -310,6 +568,18 @@ struct OpsChatMessage: Codable, Identifiable {
         case attachmentUrl = "attachment_url"
         case attachmentType = "attachment_type"
         case createdAt = "created_at"
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = container.decodeFlexibleInt(forKey: .id) ?? 0
+        self.userId = container.decodeFlexibleInt(forKey: .userId)
+        self.senderType = (try? container.decodeIfPresent(String.self, forKey: .senderType)) ?? "user"
+        self.senderName = try? container.decodeIfPresent(String.self, forKey: .senderName)
+        self.message = try? container.decodeIfPresent(String.self, forKey: .message)
+        self.attachmentUrl = try? container.decodeIfPresent(String.self, forKey: .attachmentUrl)
+        self.attachmentType = try? container.decodeIfPresent(String.self, forKey: .attachmentType)
+        self.createdAt = try? container.decodeIfPresent(String.self, forKey: .createdAt)
     }
 
     var isFromOps: Bool { senderType != "user" }
@@ -355,6 +625,16 @@ struct VolunteerItem: Codable, Identifiable {
         case city, skills
         case availabilityStatus = "availability_status"
     }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = container.decodeFlexibleInt(forKey: .id) ?? 0
+        self.userId = container.decodeFlexibleInt(forKey: .userId)
+        self.fullName = try? container.decodeIfPresent(String.self, forKey: .fullName)
+        self.city = try? container.decodeIfPresent(String.self, forKey: .city)
+        self.skills = try? container.decodeIfPresent(String.self, forKey: .skills)
+        self.availabilityStatus = try? container.decodeIfPresent(String.self, forKey: .availabilityStatus)
+    }
 }
 
 // MARK: - Auth Response
@@ -372,5 +652,16 @@ struct LoginResponse: Codable {
         case userId = "user_id"
         case name, email, phone, role
         case entityType = "entity_type"
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.token = (try? container.decodeIfPresent(String.self, forKey: .token)) ?? ""
+        self.userId = container.decodeFlexibleInt(forKey: .userId) ?? 0
+        self.name = (try? container.decodeIfPresent(String.self, forKey: .name)) ?? ""
+        self.email = try? container.decodeIfPresent(String.self, forKey: .email)
+        self.phone = container.decodeFlexibleString(forKey: .phone)
+        self.role = (try? container.decodeIfPresent(String.self, forKey: .role)) ?? "volunteer"
+        self.entityType = try? container.decodeIfPresent(String.self, forKey: .entityType)
     }
 }

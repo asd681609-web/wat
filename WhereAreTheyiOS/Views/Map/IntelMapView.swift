@@ -1,4 +1,4 @@
-//
+﻿//
 //  IntelMapView.swift
 //  WhereAreTheyiOS
 //
@@ -18,7 +18,7 @@ struct IntelMapView: View {
     
     @State private var region = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 32.8872, longitude: 13.1913), // Tripoli default
-        span: MKCoordinateSpan(latitudeDelta: 0.8, longitudeDelta: 0.8)
+        span: MKCoordinateSpan(latitudeDelta: 0.25, longitudeDelta: 0.25)
     )
 
     var body: some View {
@@ -152,7 +152,7 @@ struct IntelMapView: View {
         if let loc = locationManager.userLocation {
             withAnimation {
                 region.center = loc
-                region.span = MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
+                region.span = MKCoordinateSpan(latitudeDelta: 0.08, longitudeDelta: 0.08)
             }
         } else {
             locationManager.requestLocation()
@@ -162,10 +162,18 @@ struct IntelMapView: View {
     private func loadMapNotices() {
         Task {
             do {
-                let items = try await APIService.shared.fetchMapNotices()
+                var items = try await APIService.shared.fetchMapNotices()
+                if items.isEmpty {
+                    items = try await APIService.shared.fetchNotices()
+                }
                 await MainActor.run {
                     self.notices = items
                     self.isLoading = false
+                    if let first = items.first(where: { $0.coordinate != nil }), let coord = first.coordinate {
+                        withAnimation {
+                            self.region.center = coord
+                        }
+                    }
                 }
             } catch {
                 await MainActor.run {

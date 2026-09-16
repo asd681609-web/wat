@@ -1,0 +1,140 @@
+﻿//
+//  AmberAlertSyncManager.swift
+//  WhereAreTheyiOS
+//
+//  Created for AinHum Platform (أين هم) — Live Real-Time AMBER Alert Sync & Polling Engine
+//
+
+import Foundation
+import SwiftUI
+import Combine
+import AudioToolbox
+
+@MainActor
+class AmberAlertSyncManager: ObservableObject {
+    static let shared = AmberAlertSyncManager()
+
+    @Published var activeAlerts: [AmberAlert] = []
+    @Published var currentActiveAlert: AmberAlert? = nil
+    @Published var isEmergencyActive: Bool = false
+    @Published var lastSyncDate: Date? = nil
+
+    private var pollTimer: Timer?
+    private let seenKey = "AinHum_Seen_Amber_Alert_IDs"
+    
+    private var seenAlertIds: Set<Int> {
+        get {
+            let arr = UserDefaults.standard.array(forKey: seenKey) as? [Int] ?? []
+            return Set(arr)
+        }
+        set {
+            UserDefaults.standard.set(Array(newValue), forKey: seenKey)
+        }
+    }
+
+    private init() {
+        startSync()
+    }
+
+    func startSync() {
+        pollTimer?.invalidate()
+        // Immediate check on startup
+        Task {
+            await syncAmberAlerts(triggerPopupOnNew: true)
+        }
+        
+        // Poll every 25 seconds while app is active
+        pollTimer = Timer.scheduledTimer(withTimeInterval: 25.0, repeats: true) { [weak self] _ in
+            guard let self = self else { return }
+            Task { @MainActor in
+                await self.syncAmberAlerts(triggerPopupOnNew: true)
+            }
+        }
+    }
+
+    func stopSync() {
+        pollTimer?.invalidate()
+        pollTimer = nil
+    }
+
+    func syncAmberAlerts(triggerPopupOnNew: Bool = true) async {
+        do {
+            let fetchedAlerts = try await APIService.shared.fetchAmberAlerts()
+            self.activeAlerts = fetchedAlerts
+            self.lastSyncDate = Date()
+
+            guard !fetchedAlerts.isEmpty else {
+                return
+            }
+
+            // Check if there is a new alert not yet seen
+            var currentSeen = self.seenAlertIds
+            var newlyDetected: AmberAlert? = nil
+
+            for alert in fetchedAlerts {
+                if !currentSeen.contains(alert.id) {
+                    newlyDetected = alert
+                    currentSeen.insert(alert.id)
+                    break
+                }
+            }
+
+            if let newAlert = newlyDetected, triggerPopupOnNew {
+                self.seenAlertIds = currentSeen
+                self.triggerEmergencyAlert(alert: newAlert)
+            } else if self.currentActiveAlert == nil && triggerPopupOnNew && self.seenAlertIds.isEmpty {
+                // If first time launching and there is an active alert, show the latest one
+                if let firstAlert = fetchedAlerts.first {
+                    self.seenAlertIds.insert(firstAlert.id)
+                    self.triggerEmergencyAlert(alert: firstAlert)
+                }
+            }
+        } catch {
+            print("⚠️ AmberAlertSyncManager sync error: \(error.localizedDescription)")
+        }
+    }
+
+    func triggerEmergencyAlert(alert: AmberAlert) {
+        self.currentActiveAlert = alert
+        self.isEmergencyActive = true
+
+        // Play critical alert audio sound
+        AudioServicesPlayAlertSound(kSystemSoundID_Vibrate)
+        AudioServicesPlaySystemSound(1005)
+
+        // Schedule system lockscreen/tray notification
+        NotificationManager.shared.scheduleLocalAmberAlertNotification(alert: alert)
+    }
+
+    func dismissCurrentAlert() {
+        withAnimation {
+            self.currentActiveAlert = nil
+            self.isEmergencyActive = false
+        }
+    }
+
+    func showSpecificAlert(_ alert: AmberAlert) {
+        withAnimation {
+            self.currentActiveAlert = alert
+            self.isEmergencyActive = true
+        }
+    }
+
+    func testSirenAlert() {
+        let sample = AmberAlert(
+            id: 99999,
+            noticeId: nil,
+            message: "🚨 تجربة صفارة الإنذار: تنبيه طوارئ AMBER من غرفة العمليات المركزية — النظام يعمل ومستعد لاستقبال البلاغات الحية.",
+            coverageCity: "طرابلس",
+            radiusKm: 15,
+            uniqueCode: "AIN-TEST-2026",
+            fullName: "حالة تجريبية لاختبار الصوت والشاشة",
+            gender: "male",
+            ageEstimate: "25",
+            noticeCity: "طرابلس",
+            photoUrl: nil,
+            issuedAt: "الآن"
+        )
+        self.triggerEmergencyAlert(alert: sample)
+    }
+}
