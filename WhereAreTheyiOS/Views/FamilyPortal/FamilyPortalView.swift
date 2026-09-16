@@ -2,142 +2,167 @@
 //  FamilyPortalView.swift
 //  WhereAreTheyiOS
 //
+//  Created for AinHum Platform (أين هم) — Family Portal matching Android FamilyPortalScreen
+//
 
 import SwiftUI
 
 struct FamilyPortalView: View {
-    @StateObject private var viewModel = FamilyPortalViewModel()
-    
+    @Environment(\.dismiss) private var dismiss
+    @State private var code: String = ""
+    @State private var portalData: FamilyPortalData? = nil
+    @State private var isSearching: Bool = false
+    @State private var errorMessage: String? = nil
+
     var body: some View {
         NavigationView {
             ZStack {
-                Color(red: 0.04, green: 0.06, blue: 0.12).ignoresSafeArea()
+                AinTheme.bgPrimary.ignoresSafeArea()
                 
-                VStack(spacing: 20) {
-                    // Title Banner
-                    VStack(spacing: 6) {
-                        Image(systemName: "lock.shield.fill")
-                            .font(.system(size: 40))
-                            .foregroundColor(Color(red: 0.23, green: 0.51, blue: 0.96))
+                ScrollView {
+                    VStack(spacing: 16) {
+                        // Header Box
+                        VStack(spacing: 8) {
+                            Circle()
+                                .fill(AinTheme.purple.opacity(0.12))
+                                .frame(width: 56, height: 56)
+                                .overlay(
+                                    Image(systemName: "person.2.fill")
+                                        .font(.system(size: 24))
+                                        .foregroundColor(AinTheme.purple)
+                                )
+                            Text("بوابة تتبع العائلات الخاصة")
+                                .font(.system(size: 17, weight: .bold))
+                                .foregroundColor(AinTheme.textPrimary)
+                            Text("أدخل رمز البلاغ السري المُسلّم إليك لمتابعة آخر تحديثات البحث")
+                                .font(.system(size: 12))
+                                .foregroundColor(AinTheme.textSecondary)
+                                .multilineTextAlignment(.center)
+                        }
+                        .padding(.top, 10)
                         
-                        Text("👨‍👩‍👧 بوابة الأسرة السرية")
-                            .font(.system(size: 22, weight: .bold))
-                            .foregroundColor(.white)
-                        
-                        Text("تابع حالة بلاغك ومعلومات البحث بخصوصية تامة")
-                            .font(.system(size: 13))
-                            .foregroundColor(.gray)
-                    }
-                    .padding(.top, 20)
-                    
-                    // Search Code Input Card
-                    VStack(alignment: .trailing, spacing: 12) {
-                        Text("رمز البلاغ الموحد (مثال: AIN-MIS-2026-8812)")
-                            .font(.system(size: 13, weight: .bold))
-                            .foregroundColor(.white)
-                        
+                        // Search Bar
                         HStack(spacing: 10) {
-                            Button(action: {
-                                Task { await viewModel.search() }
-                            }) {
+                            TextField("مثال: WAT-8492", text: $code)
+                                .font(.system(size: 14, weight: .bold))
+                                .multilineTextAlignment(.center)
+                                .padding(12)
+                                .background(AinTheme.bgSecondary)
+                                .cornerRadius(12)
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(AinTheme.border, lineWidth: 1))
+                            
+                            Button(action: searchPortal) {
                                 HStack {
-                                    if viewModel.isLoading {
+                                    if isSearching {
                                         ProgressView().tint(.white)
                                     } else {
-                                        Text("بحث")
-                                            .font(.system(size: 14, weight: .bold))
                                         Image(systemName: "magnifyingglass")
+                                        Text("استعلام")
+                                            .font(.system(size: 13, weight: .bold))
                                     }
                                 }
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 12)
-                                .background(Color.blue)
                                 .foregroundColor(.white)
+                                .padding(.horizontal, 18)
+                                .padding(.vertical, 12)
+                                .background(AinTheme.purple)
                                 .cornerRadius(12)
                             }
-                            
-                            TextField("أدخل الرمز هنا...", text: $viewModel.searchCode)
-                                .padding(12)
-                                .background(Color.white.opacity(0.06))
-                                .cornerRadius(12)
-                                .foregroundColor(.white)
-                                .multilineTextAlignment(.trailing)
-                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.12), lineWidth: 1))
+                            .disabled(code.isEmpty || isSearching)
                         }
-                    }
-                    .padding(16)
-                    .background(Color.white.opacity(0.03))
-                    .cornerRadius(16)
-                    .padding(.horizontal, 16)
-                    
-                    // Error state
-                    if let err = viewModel.errorMessage {
-                        Text(err)
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(.red)
-                            .padding()
-                            .background(Color.red.opacity(0.1))
-                            .cornerRadius(12)
-                            .padding(.horizontal, 16)
-                    }
-                    
-                    // Results View
-                    if let data = viewModel.portalData {
-                        ScrollView {
-                            VStack(alignment: .trailing, spacing: 16) {
-                                // Notice Info
-                                if let notice = data.notice {
-                                    NoticeCardView(notice: notice)
+                        .padding(.horizontal, 16)
+                        
+                        if let error = errorMessage {
+                            Text(error)
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(AinTheme.red)
+                                .padding(10)
+                        }
+                        
+                        // Results Card
+                        if let data = portalData, let notice = data.notice {
+                            VStack(alignment: .leading, spacing: 14) {
+                                HStack {
+                                    Text(notice.displayName)
+                                        .font(.system(size: 16, weight: .bold))
+                                        .foregroundColor(AinTheme.textPrimary)
+                                    Spacer()
+                                    Text(notice.status ?? "نشط")
+                                        .font(.system(size: 11, weight: .bold))
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(AinTheme.emeraldSurface)
+                                        .foregroundColor(AinTheme.emerald)
+                                        .cornerRadius(8)
                                 }
                                 
-                                // Timeline Header
-                                Text("⏱️ سجل التحديثات والإفادات المعالجة")
-                                    .font(.system(size: 16, weight: .bold))
-                                    .foregroundColor(.white)
-                                    .padding(.top, 10)
+                                Divider()
                                 
-                                if data.updates.isEmpty {
-                                    Text("لا توجد تحديثات جديدة مسجلة حالياً.")
-                                        .font(.system(size: 13))
-                                        .foregroundColor(.gray)
-                                        .padding(.vertical, 20)
-                                } else {
-                                    VStack(alignment: .trailing, spacing: 14) {
-                                        ForEach(data.updates) { update in
-                                            HStack(alignment: .top, spacing: 12) {
-                                                VStack(alignment: .trailing, spacing: 4) {
-                                                    Text(update.content ?? "")
-                                                        .font(.system(size: 14))
-                                                        .foregroundColor(.white)
-                                                        .multilineTextAlignment(.trailing)
-                                                    
-                                                    if let date = update.createdAt {
-                                                        Text(date)
-                                                            .font(.system(size: 11))
-                                                            .foregroundColor(.gray)
-                                                    }
+                                Text("سجل التحديثات الميدانية:")
+                                    .font(.system(size: 13, weight: .bold))
+                                    .foregroundColor(AinTheme.textSecondary)
+                                
+                                if let updates = data.updates, !updates.isEmpty {
+                                    ForEach(updates) { tip in
+                                        HStack(alignment: .top, spacing: 8) {
+                                            Circle().fill(AinTheme.purple).frame(width: 8, height: 8).offset(y: 5)
+                                            VStack(alignment: .leading, spacing: 2) {
+                                                Text(tip.content ?? "إفادة واردة")
+                                                    .font(.system(size: 12))
+                                                    .foregroundColor(AinTheme.textPrimary)
+                                                if let date = tip.createdAt {
+                                                    Text(date).font(.system(size: 10)).foregroundColor(AinTheme.textMuted)
                                                 }
-                                                .padding(12)
-                                                .background(Color.white.opacity(0.04))
-                                                .cornerRadius(12)
-                                                
-                                                Circle()
-                                                    .fill(Color.blue)
-                                                    .frame(width: 10, height: 10)
-                                                    .padding(.top, 6)
                                             }
                                         }
+                                        .padding(8)
+                                        .background(AinTheme.bgTertiary)
+                                        .cornerRadius(8)
                                     }
+                                } else {
+                                    Text("لا توجد إفادات أو مشاهدات جديدة حتى اللحظة. فرق البحث تواصل العمل.")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(AinTheme.textMuted)
                                 }
                             }
                             .padding(16)
+                            .background(AinTheme.bgSecondary)
+                            .cornerRadius(16)
+                            .overlay(RoundedRectangle(cornerRadius: 16).stroke(AinTheme.border, lineWidth: 1))
+                            .padding(.horizontal, 16)
                         }
-                    } else {
+                        
                         Spacer()
                     }
                 }
             }
-            .navigationBarHidden(true)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("إغلاق") { dismiss() }
+                        .foregroundColor(AinTheme.textMuted)
+                }
+            }
+        }
+    }
+
+    private func searchPortal() {
+        let q = code.trimmingCharacters(in: .whitespaces)
+        guard !q.isEmpty else { return }
+        isSearching = true
+        errorMessage = nil
+        Task {
+            do {
+                let res = try await APIService.shared.searchFamilyPortal(code: q)
+                await MainActor.run {
+                    self.portalData = res
+                    self.isSearching = false
+                }
+            } catch {
+                await MainActor.run {
+                    self.errorMessage = error.localizedDescription
+                    self.isSearching = false
+                }
+            }
         }
     }
 }

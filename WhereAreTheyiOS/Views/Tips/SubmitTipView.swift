@@ -2,6 +2,8 @@
 //  SubmitTipView.swift
 //  WhereAreTheyiOS
 //
+//  Created for AinHum Platform (أين هم) — Confidential Tip Screen matching Android SubmitTipScreen
+//
 
 import SwiftUI
 
@@ -10,171 +12,199 @@ struct SubmitTipView: View {
     @Environment(\.dismiss) private var dismiss
     
     @State private var content: String = ""
-    @State private var location: String = ""
-    @State private var phone: String = ""
-    @State private var isAnonymous: Bool = false
-    
+    @State private var locationDescription: String = ""
+    @State private var contactPhone: String = ""
+    @State private var isAnonymous: Bool = true
     @State private var isSubmitting: Bool = false
     @State private var alertMessage: String? = nil
+    @State private var showAlert: Bool = false
     @State private var isSuccess: Bool = false
-    
+
     var body: some View {
         NavigationView {
             ZStack {
-                Color(red: 0.04, green: 0.06, blue: 0.12).ignoresSafeArea()
+                AinTheme.bgPrimary.ignoresSafeArea()
                 
                 ScrollView {
-                    VStack(alignment: .trailing, spacing: 18) {
-                        
-                        // Header info banner
-                        HStack {
-                            VStack(alignment: .trailing, spacing: 4) {
-                                Text("معلوماتك محمية بكامل السرية")
+                    VStack(spacing: 16) {
+                        // Confidential Guarantee Banner
+                        HStack(spacing: 12) {
+                            Circle()
+                                .fill(AinTheme.cyan.opacity(0.15))
+                                .frame(width: 44, height: 44)
+                                .overlay(Image(systemName: "shield.checkmark.fill").foregroundColor(AinTheme.cyan))
+                            
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("إفادة سرية ومشفرة")
                                     .font(.system(size: 14, weight: .bold))
-                                    .foregroundColor(.white)
-                                Text("يمكنك التبليغ عن مشاهدة بشكل مجهول")
-                                    .font(.system(size: 12))
-                                    .foregroundColor(.gray)
+                                    .foregroundColor(AinTheme.textPrimary)
+                                Text("تصل مشاهدتك إلى ضابط عمليات البحث والإنقاذ مباشرة وبسرية تامة")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(AinTheme.textSecondary)
                             }
-                            Spacer()
-                            Image(systemName: "shield.checkmark.fill")
-                                .font(.system(size: 28))
-                                .foregroundColor(.blue)
                         }
                         .padding(14)
-                        .background(Color.blue.opacity(0.12))
-                        .cornerRadius(14)
-                        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.blue.opacity(0.3), lineWidth: 1))
+                        .background(AinTheme.bgSecondary)
+                        .cornerRadius(16)
+                        .overlay(RoundedRectangle(cornerRadius: 16).stroke(AinTheme.border, lineWidth: 1))
                         
-                        // Tip Content Text Editor
-                        VStack(alignment: .trailing, spacing: 6) {
-                            Text("وصف المشاهدة / التفاصيل *")
-                                .font(.system(size: 13, weight: .bold))
-                                .foregroundColor(.white)
-                            
-                            TextEditor(text: $content)
-                                .frame(height: 120)
-                                .padding(8)
-                                .background(Color.white.opacity(0.06))
-                                .cornerRadius(12)
-                                .foregroundColor(.white)
-                                .environment(\.layoutDirection, .rightToLeft)
-                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.12), lineWidth: 1))
+                        // Notice Code Tag
+                        HStack {
+                            Text("البلاغ المستهدف:")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(AinTheme.textSecondary)
+                            Spacer()
+                            Text("#\(noticeCode)")
+                                .font(.system(size: 13, weight: .black))
+                                .foregroundColor(AinTheme.cyan)
                         }
-                        
-                        // Location Description
-                        VStack(alignment: .trailing, spacing: 6) {
-                            Text("مكان المشاهدة (المدينة / الحي)")
-                                .font(.system(size: 13, weight: .bold))
-                                .foregroundColor(.white)
-                            
-                            TextField("مثال: طرابلس - بالقرب من المستشفى...", text: $location)
-                                .padding(12)
-                                .background(Color.white.opacity(0.06))
-                                .cornerRadius(12)
-                                .foregroundColor(.white)
-                                .multilineTextAlignment(.trailing)
-                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.12), lineWidth: 1))
-                        }
+                        .padding(12)
+                        .background(AinTheme.bgSecondary)
+                        .cornerRadius(12)
                         
                         // Anonymous Toggle
                         Toggle(isOn: $isAnonymous) {
-                            HStack {
-                                Spacer()
-                                Text("إرسال الإفادة بشكل مجهول (بدون بيانات شخصية)")
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("إرسال كمواطن مجهول الهوية")
                                     .font(.system(size: 13, weight: .bold))
-                                    .foregroundColor(.white)
+                                    .foregroundColor(AinTheme.textPrimary)
+                                Text("لن يتم تسجيل أو إظهار أية بيانات شخصية عنك")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(AinTheme.textMuted)
                             }
                         }
-                        .tint(.red)
-                        .padding(.vertical, 4)
+                        .tint(AinTheme.cyan)
+                        .padding(14)
+                        .background(AinTheme.bgSecondary)
+                        .cornerRadius(14)
                         
-                        // Phone input (if not anonymous)
+                        // Content Input
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("تفاصيل المشاهدة أو الإفادة *")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(AinTheme.textSecondary)
+                            
+                            TextEditor(text: $content)
+                                .frame(height: 110)
+                                .padding(8)
+                                .background(AinTheme.bgTertiary)
+                                .cornerRadius(10)
+                        }
+                        .padding(14)
+                        .background(AinTheme.bgSecondary)
+                        .cornerRadius(14)
+                        
+                        // Location Description
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("مكان أو عنوان المشاهدة بالتحديد *")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(AinTheme.textSecondary)
+                            TextField("مثال: بالقرب من مستشفى الجلاء، داخل سيارة...", text: $locationDescription)
+                                .font(.system(size: 13))
+                                .padding(12)
+                                .background(AinTheme.bgTertiary)
+                                .cornerRadius(10)
+                        }
+                        .padding(14)
+                        .background(AinTheme.bgSecondary)
+                        .cornerRadius(14)
+                        
+                        // Contact Phone (optional if not anonymous)
                         if !isAnonymous {
-                            VStack(alignment: .trailing, spacing: 6) {
-                                Text("رقم الهاتف للتواصل")
-                                    .font(.system(size: 13, weight: .bold))
-                                    .foregroundColor(.white)
-                                
-                                TextField("091XXXXXXX", text: $phone)
-                                    .padding(12)
-                                    .background(Color.white.opacity(0.06))
-                                    .cornerRadius(12)
-                                    .foregroundColor(.white)
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("رقم هاتفك (للتواصل معك في حال الحاجة لتوضيح)")
+                                    .font(.system(size: 12, weight: .bold))
+                                    .foregroundColor(AinTheme.textSecondary)
+                                TextField("09xxxxxxxx", text: $contactPhone)
                                     .keyboardType(.phonePad)
-                                    .multilineTextAlignment(.trailing)
-                                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.12), lineWidth: 1))
+                                    .font(.system(size: 13))
+                                    .padding(12)
+                                    .background(AinTheme.bgTertiary)
+                                    .cornerRadius(10)
                             }
+                            .padding(14)
+                            .background(AinTheme.bgSecondary)
+                            .cornerRadius(14)
                         }
                         
                         // Submit Button
                         Button(action: submitTip) {
                             HStack {
-                                Spacer()
                                 if isSubmitting {
                                     ProgressView().tint(.white)
                                 } else {
-                                    Text("إرسال الإفادة الميدانية")
-                                        .font(.system(size: 16, weight: .bold))
                                     Image(systemName: "paperplane.fill")
+                                    Text("إرسال الإفادة لغرفة العمليات")
+                                        .font(.system(size: 14, weight: .bold))
                                 }
-                                Spacer()
                             }
-                            .padding(.vertical, 14)
-                            .background(
-                                LinearGradient(gradient: Gradient(colors: [Color.red, Color(red: 0.7, green: 0.1, blue: 0.1)]), startPoint: .leading, endPoint: .trailing)
-                            )
                             .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .background(AinTheme.cyan)
                             .cornerRadius(14)
+                            .shadow(color: AinTheme.cyan.opacity(0.3), radius: 4, x: 0, y: 2)
                         }
-                        .disabled(isSubmitting || content.isEmpty)
-                        .opacity(content.isEmpty ? 0.6 : 1.0)
-                        .padding(.top, 10)
+                        .disabled(isSubmitting)
+                        
+                        Spacer()
                     }
                     .padding(16)
                 }
             }
-            .navigationTitle("إفادة ميدانية - #\(noticeCode)")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
+                ToolbarItem(placement: .navigationBarLeading) {
                     Button("إلغاء") { dismiss() }
-                        .foregroundColor(.gray)
+                        .foregroundColor(AinTheme.textMuted)
+                }
+                ToolbarItem(placement: .principal) {
+                    Text("تقديم إفادة سرية")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(AinTheme.textPrimary)
                 }
             }
-            .alert(isPresented: .constant(alertMessage != nil)) {
+            .alert(isPresented: $showAlert) {
                 Alert(
-                    title: Text(isSuccess ? "تم بنجاح" : "تنبيه"),
+                    title: Text(isSuccess ? "شكراً لمساهمتك" : "تنبيه"),
                     message: Text(alertMessage ?? ""),
                     dismissButton: .default(Text("حسناً")) {
                         if isSuccess { dismiss() }
-                        alertMessage = nil
                     }
                 )
             }
         }
     }
-    
+
     private func submitTip() {
+        let text = content.trimmingCharacters(in: .whitespaces)
+        guard !text.isEmpty else {
+            alertMessage = "يرجى كتابة تفاصيل المشاهدة"
+            showAlert = true
+            return
+        }
+        
         isSubmitting = true
         Task {
             do {
                 let msg = try await APIService.shared.submitTip(
                     noticeCode: noticeCode,
-                    content: content,
-                    location: location,
-                    phone: isAnonymous ? "مجهول" : phone
+                    content: text,
+                    location: locationDescription,
+                    phone: isAnonymous ? "مجهول" : contactPhone
                 )
                 await MainActor.run {
-                    isSubmitting = false
-                    isSuccess = true
-                    alertMessage = msg
+                    self.alertMessage = msg
+                    self.isSuccess = true
+                    self.showAlert = true
+                    self.isSubmitting = false
                 }
             } catch {
                 await MainActor.run {
-                    isSubmitting = false
-                    isSuccess = false
-                    alertMessage = error.localizedDescription
+                    self.alertMessage = error.localizedDescription
+                    self.isSuccess = false
+                    self.showAlert = true
+                    self.isSubmitting = false
                 }
             }
         }

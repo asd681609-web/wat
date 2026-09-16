@@ -10,9 +10,11 @@ import CoreLocation
 import Combine
 
 class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
+    static let shared = LocationManager()
     private let manager = CLLocationManager()
     
     @Published var location: CLLocationCoordinate2D? = nil
+    var userLocation: CLLocationCoordinate2D? { location }
     @Published var authorizationStatus: CLAuthorizationStatus = .notDetermined
     @Published var isLiveTrackingActive: Bool = false
     
@@ -24,6 +26,11 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         manager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
         manager.distanceFilter = kCLDistanceFilterNone
         authorizationStatus = manager.authorizationStatus
+    }
+
+    func requestLocation() {
+        requestLocationPermission()
+        manager.startUpdatingLocation()
     }
     
     // Request Location Permission from User

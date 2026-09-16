@@ -8,7 +8,6 @@ options:
 
 settings:
   base:
-    DEVELOPMENT_TEAM: ""
     CODE_SIGN_IDENTITY: ""
     CODE_SIGNING_REQUIRED: "NO"
     CODE_SIGNING_ALLOWED: "NO"
@@ -29,6 +28,7 @@ targets:
         excludes:
           - "README.md"
           - "Info.plist"
+          - "project.yml"
     settings:
       base:
         INFOPLIST_FILE: WhereAreTheyiOS/Info.plist

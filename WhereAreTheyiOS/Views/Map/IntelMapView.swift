@@ -2,166 +2,176 @@
 //  IntelMapView.swift
 //  WhereAreTheyiOS
 //
-//  خريطة البلاغات الميدانية الحية وإظهار موقع المستخدم والمسافة الحقيقية بالـ كم
+//  Created for AinHum Platform (أين هم) — Interactive Field Intel Map matching Android IntelMapScreen
 //
 
 import SwiftUI
 import MapKit
-import CoreLocation
-
-struct MapAnnotationItem: Identifiable {
-    let id: Int
-    let notice: Notice
-    let coordinate: CLLocationCoordinate2D
-}
 
 struct IntelMapView: View {
-    @StateObject private var viewModel = NoticesViewModel()
-    @StateObject private var locationManager = LocationManager()
+    let onNoticeClick: (Int) -> Void
+    
+    @StateObject private var locationManager = LocationManager.shared
+    @State private var notices: [Notice] = []
+    @State private var selectedNotice: Notice? = nil
+    @State private var isLoading: Bool = true
     
     @State private var region = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 27.0, longitude: 17.0), // Center of Libya
-        span: MKCoordinateSpan(latitudeDelta: 10.0, longitudeDelta: 10.0)
+        center: CLLocationCoordinate2D(latitude: 32.8872, longitude: 13.1913), // Tripoli default
+        span: MKCoordinateSpan(latitudeDelta: 0.8, longitudeDelta: 0.8)
     )
-    
-    @State private var selectedNotice: Notice? = nil
-    
-    var annotations: [MapAnnotationItem] {
-        return viewModel.notices.compactMap { item in
-            guard let lat = item.lat, let lng = item.lng, lat != 0.0, lng != 0.0 else { return nil }
-            return MapAnnotationItem(id: item.id, notice: item, coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lng))
-        }
-    }
-    
-    // Calculate distance in kilometers
-    func distanceInKM(to coordinate: CLLocationCoordinate2D) -> Double? {
-        guard let userLoc = locationManager.location else { return nil }
-        let userCLLocation = CLLocation(latitude: userLoc.latitude, longitude: userLoc.longitude)
-        let targetCLLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
-        return userCLLocation.distance(from: targetCLLocation) / 1000.0
-    }
-    
+
     var body: some View {
-        NavigationView {
-            ZStack(alignment: .bottom) {
-                // Interactive Map showing User Location & Missing Person Pins
-                Map(
-                    coordinateRegion: $region,
-                    showsUserLocation: true,
-                    userTrackingMode: .constant(.follow),
-                    annotationItems: annotations
-                ) { item in
-                    MapAnnotation(coordinate: item.coordinate) {
-                        Button(action: {
-                            selectedNotice = item.notice
-                        }) {
-                            VStack(spacing: 2) {
-                                ZStack {
-                                    Circle()
-                                        .fill(item.notice.isMissing ? Color.red : Color.green)
-                                        .frame(width: 34, height: 34)
-                                        .shadow(color: item.notice.isMissing ? .red.opacity(0.5) : .green.opacity(0.5), radius: 6)
-                                    Image(systemName: item.notice.isMissing ? "person.fill.questionmark" : "checkmark.seal.fill")
-                                        .font(.system(size: 14, weight: .bold))
-                                        .foregroundColor(.white)
-                                }
+        ZStack(alignment: .bottom) {
+            // Full Screen Map
+            Map(
+                coordinateRegion: $region,
+                showsUserLocation: true,
+                annotationItems: notices.filter { $0.coordinate != nil }
+            ) { notice in
+                MapAnnotation(coordinate: notice.coordinate!) {
+                    Button(action: {
+                        withAnimation(.spring()) {
+                            selectedNotice = notice
+                        }
+                    }) {
+                        VStack(spacing: 0) {
+                            ZStack {
+                                Circle()
+                                    .fill(notice.isMissing ? AinTheme.red : AinTheme.emerald)
+                                    .frame(width: 36, height: 36)
+                                    .shadow(color: (notice.isMissing ? AinTheme.red : AinTheme.emerald).opacity(0.4), radius: 4)
                                 
-                                // Show Distance Badge under pin if user location is available
-                                if let dist = distanceInKM(to: item.coordinate) {
-                                    Text(String(format: "%.1f كم", dist))
-                                        .font(.system(size: 10, weight: .bold))
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(Color.black.opacity(0.85))
-                                        .foregroundColor(.yellow)
-                                        .cornerRadius(8)
-                                }
+                                Image(systemName: notice.isMissing ? "person.fill.questionmark" : "checkmark.seal.fill")
+                                    .font(.system(size: 16, weight: .bold))
+                                    .foregroundColor(.white)
                             }
+                            
+                            Image(systemName: "triangle.fill")
+                                .font(.system(size: 10))
+                                .foregroundColor(notice.isMissing ? AinTheme.red : AinTheme.emerald)
+                                .rotationEffect(.degrees(180))
+                                .offset(y: -3)
                         }
                     }
                 }
-                .ignoresSafeArea(edges: .top)
-                
-                // Overlay Header with Location Permission Action
-                VStack {
-                    HStack {
-                        Button(action: {
-                            locationManager.requestLocationPermission()
-                        }) {
-                            HStack(spacing: 6) {
-                                Image(systemName: locationManager.location != nil ? "location.fill" : "location.slash")
-                                    .foregroundColor(locationManager.location != nil ? .green : .orange)
-                                Text(locationManager.location != nil ? "موقعك نشط" : "تفعيل الموقع")
-                                    .font(.system(size: 12, weight: .bold))
+            }
+            .ignoresSafeArea(edges: .top)
+            
+            // Map Floating Controls (Top Right: Center on My GPS Location)
+            VStack {
+                HStack {
+                    Spacer()
+                    VStack(spacing: 10) {
+                        Button(action: centerOnUserLocation) {
+                            Image(systemName: "location.fill")
+                                .font(.system(size: 18))
+                                .foregroundColor(AinTheme.cyan)
+                                .padding(12)
+                                .background(AinTheme.bgSecondary)
+                                .clipShape(Circle())
+                                .shadow(color: Color.black.opacity(0.1), radius: 4)
+                        }
+                        
+                        Button(action: loadMapNotices) {
+                            Image(systemName: "arrow.clockwise")
+                                .font(.system(size: 18))
+                                .foregroundColor(AinTheme.textPrimary)
+                                .padding(12)
+                                .background(AinTheme.bgSecondary)
+                                .clipShape(Circle())
+                                .shadow(color: Color.black.opacity(0.1), radius: 4)
+                        }
+                    }
+                    .padding(.trailing, 16)
+                    .padding(.top, 50)
+                }
+                Spacer()
+            }
+            
+            // Selected Notice Floating Preview Card
+            if let selected = selectedNotice {
+                VStack(spacing: 0) {
+                    HStack(alignment: .center, spacing: 12) {
+                        // Thumbnail
+                        if let photoURL = selected.fullPhotoURL {
+                            AsyncImage(url: photoURL) { phase in
+                                if let img = phase.image {
+                                    img.resizable().scaledToFill()
+                                        .frame(width: 56, height: 56)
+                                        .cornerRadius(12)
+                                } else {
+                                    Color.gray.opacity(0.2).frame(width: 56, height: 56).cornerRadius(12)
+                                }
                             }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                            .background(Color(red: 0.04, green: 0.06, blue: 0.12).opacity(0.9))
-                            .cornerRadius(20)
-                            .foregroundColor(.white)
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(selected.displayName)
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(AinTheme.textPrimary)
+                            Text("\(selected.city ?? "") • #\(selected.uniqueCode)")
+                                .font(.system(size: 11))
+                                .foregroundColor(AinTheme.textSecondary)
                         }
                         
                         Spacer()
                         
-                        Text("🗺️ خريطة البلاغات الحية")
-                            .font(.system(size: 14, weight: .bold))
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 8)
-                            .background(Color(red: 0.04, green: 0.06, blue: 0.12).opacity(0.9))
-                            .cornerRadius(20)
-                            .foregroundColor(.white)
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.top, 10)
-                    Spacer()
-                }
-                
-                // Selected Notice Bottom Preview Sheet with Distance Indicator
-                if let notice = selectedNotice {
-                    VStack(spacing: 8) {
-                        HStack {
-                            if let lat = notice.lat, let lng = notice.lng,
-                               let dist = distanceInKM(to: CLLocationCoordinate2D(latitude: lat, longitude: lng)) {
-                                HStack(spacing: 4) {
-                                    Image(systemName: "location.north.line.fill")
-                                        .foregroundColor(.yellow)
-                                    Text(String(format: "يبعد عن موقعك الحالي: %.1f كم", dist))
-                                        .font(.system(size: 13, weight: .bold))
-                                        .foregroundColor(.yellow)
-                                }
-                            } else {
-                                Text("📍 تتبع الإحداثيات الحية")
-                                    .font(.system(size: 12, weight: .semibold))
-                                    .foregroundColor(.gray)
-                            }
-                            
-                            Spacer()
-                            
-                            Button(action: { selectedNotice = nil }) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .font(.system(size: 22))
-                                    .foregroundColor(.gray)
-                            }
+                        Button(action: { onNoticeClick(selected.id) }) {
+                            Text("التفاصيل")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 8)
+                                .background(AinTheme.cyan)
+                                .cornerRadius(10)
                         }
                         
-                        NavigationLink(destination: NoticeDetailView(notice: notice)) {
-                            NoticeCardView(notice: notice)
+                        Button(action: { withAnimation { selectedNotice = nil } }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(AinTheme.textMuted)
+                                .font(.system(size: 20))
                         }
-                        .buttonStyle(PlainButtonStyle())
                     }
                     .padding(14)
-                    .background(Color(red: 0.06, green: 0.09, blue: 0.16))
-                    .cornerRadius(20)
-                    .shadow(color: .black.opacity(0.5), radius: 12)
-                    .padding(16)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .background(AinTheme.bgSecondary)
+                    .cornerRadius(18)
+                    .shadow(color: Color.black.opacity(0.12), radius: 10, x: 0, y: 4)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 90) // Above floating bar
+                }
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .onAppear {
+            loadMapNotices()
+        }
+    }
+
+    private func centerOnUserLocation() {
+        if let loc = locationManager.userLocation {
+            withAnimation {
+                region.center = loc
+                region.span = MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
+            }
+        } else {
+            locationManager.requestLocation()
+        }
+    }
+
+    private func loadMapNotices() {
+        Task {
+            do {
+                let items = try await APIService.shared.fetchMapNotices()
+                await MainActor.run {
+                    self.notices = items
+                    self.isLoading = false
+                }
+            } catch {
+                await MainActor.run {
+                    self.isLoading = false
                 }
             }
-            .navigationBarHidden(true)
-        }
-        .task {
-            locationManager.requestLocationPermission()
-            await viewModel.loadNotices()
         }
     }
 }
