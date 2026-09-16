@@ -41,13 +41,15 @@ class AmberAlertSyncManager: ObservableObject {
             await syncAmberAlerts(triggerPopupOnNew: true)
         }
         
-        // Poll every 25 seconds while app is running
-        pollTimer = Timer.scheduledTimer(withTimeInterval: 25.0, repeats: true) { [weak self] _ in
+        // Poll every 20 seconds using common run loop mode for continuous background reliability
+        let timer = Timer(timeInterval: 20.0, repeats: true) { [weak self] _ in
             guard let self = self else { return }
             Task { @MainActor in
                 await self.syncAmberAlerts(triggerPopupOnNew: true)
             }
         }
+        RunLoop.main.add(timer, forMode: .common)
+        pollTimer = timer
     }
 
     func stopSync() {

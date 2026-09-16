@@ -43,5 +43,10 @@ class EmergencyAlertController {
         EmergencyFlashlightManager.shared.stopStrobe()
         
         isRunning = false
+        
+        // Resume silent background keep-alive if in background
+        if UIApplication.shared.applicationState == .background {
+            BackgroundKeepAliveManager.shared.startKeepAlive()
+        }
     }
 }
