@@ -22,7 +22,7 @@ class NoticesViewModel: ObservableObject {
         return notices.filter { item in
             let matchesSearch = searchQuery.isEmpty ||
                 (item.fullName?.localizedCaseInsensitiveContains(searchQuery) ?? false) ||
-                (item.uniqueCode?.localizedCaseInsensitiveContains(searchQuery) ?? false) ||
+                item.uniqueCode.localizedCaseInsensitiveContains(searchQuery) ||
                 (item.city?.localizedCaseInsensitiveContains(searchQuery) ?? false)
             
             let matchesType = (selectedTypeFilter == "all") || (item.type == selectedTypeFilter)

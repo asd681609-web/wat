@@ -288,6 +288,7 @@ struct FamilyPortalData: Codable {
     let notice: Notice?
     let updates: [Tip]?
 }
+typealias FamilyPortalResponse = FamilyPortalData
 
 // MARK: - Ops Chat Message
 struct OpsChatMessage: Codable, Identifiable {

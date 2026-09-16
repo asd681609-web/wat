@@ -288,4 +288,24 @@ class APIService {
         }
         return loginData
     }
+
+    // MARK: - Update Volunteer Live GPS Location
+    func updateVolunteerLocation(userId: Int?, name: String, phone: String, city: String, lat: Double, lng: Double, isOnline: Bool) async throws {
+        guard let url = URL(string: legacyBaseURL + "update-volunteer-location.php") else { throw APIError.invalidURL }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let payload: [String: Any] = [
+            "user_id": userId ?? 0,
+            "name": name,
+            "phone": phone,
+            "city": city,
+            "lat": lat,
+            "lng": lng,
+            "is_online": isOnline ? 1 : 0
+        ]
+        request.httpBody = try JSONSerialization.data(withJSONObject: payload)
+        _ = try await URLSession.shared.data(for: request)
+    }
 }

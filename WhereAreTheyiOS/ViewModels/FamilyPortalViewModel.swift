@@ -8,7 +8,7 @@ import Foundation
 @MainActor
 class FamilyPortalViewModel: ObservableObject {
     @Published var searchCode: String = ""
-    @Published var portalData: FamilyPortalResponse? = nil
+    @Published var portalData: FamilyPortalData? = nil
     @Published var isLoading: Bool = false
     @Published var errorMessage: String? = nil
     

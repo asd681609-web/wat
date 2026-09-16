@@ -58,7 +58,7 @@ struct AinTheme {
     static let emerald       = Color(hex: "16A34A") // أخضر زمردي — معثور عليه
     static let emeraldDark   = Color(hex: "15803D")
     static let emeraldLight  = Color(hex: "22C55E")
-    static let emeraldSurface= Color(hex: "16A34A").opacity(0.08)
+    static let emeraldSurface = Color(hex: "16A34A").opacity(0.08)
 
     static let amber         = Color(hex: "D97706") // كهرماني — AMBER Alert
     static let amberDark     = Color(hex: "B45309")

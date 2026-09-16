@@ -62,7 +62,7 @@ struct NoticeListView: View {
                         ScrollView {
                             LazyVStack(spacing: 14) {
                                 ForEach(viewModel.filteredNotices) { notice in
-                                    NavigationLink(destination: NoticeDetailView(notice: notice)) {
+                                    NavigationLink(destination: NoticeDetailView(noticeId: notice.id)) {
                                         NoticeCardView(notice: notice)
                                     }
                                     .buttonStyle(PlainButtonStyle())
